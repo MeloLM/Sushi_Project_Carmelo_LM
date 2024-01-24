@@ -5,7 +5,7 @@ import React from 'react';
 const Card = (props) => {
     return (
         <div className="col mt-2">
-            <div className="card mx-4 p-2" style={{width: '18rem'}}>
+            <div className="card mx-4 p-2" style={{width: '18rem', backgroundColor:'rgba(255, 255, 255, 0.666)'}}>
                 <div className='d-flex justify-content-around align-items-center mb-3'>
                     <button onClick={() => props.onIncrement(props.card)} className="btn btn-success"><i className="bi bi-plus"></i></button>
                     <span className="badge badge-light bg-secondary">{props.card.quantita}</span>
