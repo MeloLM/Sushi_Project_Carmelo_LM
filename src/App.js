@@ -14,12 +14,12 @@ import fungi from './images/shrimp.png';
 
 const App = () => {
   const [cards, setCard] = useState([
-    {id:0 , name: 'California', prezzo:2.48 ,img: california , quantita:0 },
-    {id:1 , name: 'Dragon', prezzo:1.56 ,img: dragon , quantita:0 },
-    {id:2 , name: 'Dynamite', prezzo:4.12 ,img: dynamite , quantita:0 },
-    {id:3 , name: 'Whitey', prezzo:3.21 ,img: whitey , quantita:0 },
-    {id:4 , name: 'Rainbow', prezzo:3.02 ,img: rainbow , quantita:0 },
-    {id:5 , name: 'Fungi', prezzo:7.35 ,img: fungi , quantita:0 },
+    {id:0 , name: 'California', prezzo:2.50 ,img: california , quantita:0 },
+    {id:1 , name: 'Dragon', prezzo:4.20 ,img: dragon , quantita:0 },
+    {id:2 , name: 'Dynamite', prezzo:2.10 ,img: dynamite , quantita:0 },
+    {id:3 , name: 'Whitey', prezzo:1.50 ,img: whitey , quantita:0 },
+    {id:4 , name: 'Rainbow', prezzo:3.40 ,img: rainbow , quantita:0 },
+    {id:5 , name: 'Fungi', prezzo:2.80 ,img: fungi , quantita:0 },
   ]);
 
 
@@ -49,23 +49,25 @@ const App = () => {
 
   return (
    <>
-   
-    <Navbar />
-    <div className="container min-vh-100">
-      <div className="d-flex justify-content-center align-items-center">
-        <h1 className='text-center me-5'>Cosa desideri ordinare?</h1>
-        <Cart key={cards.id} items={cards} />
-      </div>
+   <div className='bg_cstm'>
+      <Navbar />
+      <div className="container min-vh-100">
+        <div className="d-flex justify-content-center align-items-center">
+          <h1 className='text-center text-white me-5'>Cosa desideri ordinare?</h1>
+          <Cart key={cards.id} items={cards} />
+        </div>
       
-      <hr/>
-      <div className="row">
-        {cards.map(card =>(
-        <Card key={card.id} card ={card} onDecrement={handleDecrement} onIncrement={handleIncrement}/>
-        ))}
+        <hr className='text-white'/>
+        <div className="row">
+          {cards.map(card =>(
+          <Card key={card.id} card ={card} onDecrement={handleDecrement} onIncrement={handleIncrement}/>
+          ))}
 
+        </div>
       </div>
-    </div>
-    <Footer />
+      <Footer />
+   </div>
+
    </>
   );
 }
