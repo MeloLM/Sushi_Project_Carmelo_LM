@@ -42,13 +42,10 @@ Sushi_Project_Carmelo_LM-main/
     ├── 📄 index.css             # Reset CSS e font-family base
     ├── 📄 App.js                # ⭐ ROOT COMPONENT - Router + Providers
     ├── 📄 App.css               # Stili globali + Dark Mode + PWA
-    ├── 📄 App.test.js           # Test unitari (Create React App default)
-    ├── 📄 setupTests.js         # Configurazione Jest
     ├── 📄 reportWebVitals.js    # Metriche performance (CRA default)
     │
     ├── 📂 components/           # Componenti React riutilizzabili
     │   ├── Card.js             # Card prodotto singolo (presentational)
-    │   ├── Cart.js             # Modale carrello con totali
     │   ├── Footer.js           # Footer con form feedback
     │   ├── Layout.js           # Layout wrapper con Navbar/Footer
     │   ├── Navbar.js           # Header con logo, dark mode, cart link
@@ -60,7 +57,6 @@ Sushi_Project_Carmelo_LM-main/
     │   └── ThemeContext.js     # Context tema dark/light
     │
     ├── 📂 hooks/                # Custom React Hooks
-    │   ├── useCart.js          # Logica carrello estratta
     │   └── usePWA.js           # Gestione PWA/Service Worker
     │
     ├── 📂 pages/                # Pagine/Route dell'applicazione

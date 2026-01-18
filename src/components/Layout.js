@@ -1,9 +1,9 @@
 import React from 'react';
 import { Outlet } from 'react-router-dom';
-import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
-import Toast from '../components/Toast';
-import PWAPrompt from '../components/PWAPrompt';
+import Navbar from './Navbar';
+import Footer from './Footer';
+import Toast from './Toast';
+import PWAPrompt from './PWAPrompt';
 import { useCartContext } from '../context/CartContext';
 import { useTheme } from '../context/ThemeContext';
 
