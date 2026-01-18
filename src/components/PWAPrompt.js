@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import usePWA from '../hooks/usePWA';
 
 /**
@@ -55,7 +54,5 @@ const PWAPrompt = () => {
     </>
   );
 };
-
-PWAPrompt.propTypes = {};
 
 export default PWAPrompt;
