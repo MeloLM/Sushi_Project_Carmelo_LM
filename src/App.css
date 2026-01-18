@@ -196,6 +196,18 @@
   letter-spacing: 1px;
 }
 
+.category-badge-bottom {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  padding: 0px 12px;
+  border-radius: 20px;
+  font-size: 0.70rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
 .badge-roll {
   background: linear-gradient(135deg, #e94560, #d63384);
   color: #fff;
@@ -218,6 +230,40 @@
   justify-content: center;
   gap: 15px;
   margin-top: 1rem;
+}
+
+.quantity-controls-inline {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.quantity-controls-inline .btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+}
+
+.quantity-controls-inline .btn:hover:not(:disabled) {
+  transform: scale(1.1);
+}
+
+.badge-quantity-inline {
+  font-size: 1rem;
+  font-weight: 700;
+  min-width: 28px;
+  text-align: center;
+  color: #1a1a2e;
+}
+
+.badge-quantity-inline.has-items {
+  color: #28a745;
 }
 
 .quantity-controls .btn {
@@ -454,4 +500,217 @@ footer a:hover {
   .cart-item .item-name {
     width: 100%;
   }
+}
+
+/* ===================== DARK MODE ===================== */
+body.dark-mode {
+  background-color: #1a1a2e;
+  color: #e0e0e0;
+}
+
+body.dark-mode .bg_cstm {
+  background-image: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url(images/sushi_bg.jpg);
+}
+
+body.dark-mode .card,
+body.dark-mode .card-product {
+  background-color: rgba(30, 30, 50, 0.95);
+  color: #e0e0e0;
+  border-color: #3a3a5a;
+}
+
+body.dark-mode .card-title {
+  color: #fff;
+}
+
+body.dark-mode .card-description {
+  color: #aaa;
+}
+
+body.dark-mode .modal-content {
+  background-color: #1e1e30;
+  color: #e0e0e0;
+}
+
+body.dark-mode .modal-header,
+body.dark-mode .modal-footer {
+  border-color: #3a3a5a;
+}
+
+body.dark-mode .list-group-item {
+  background-color: #252540;
+  color: #e0e0e0;
+  border-color: #3a3a5a;
+}
+
+body.dark-mode .form-control {
+  background-color: #252540;
+  border-color: #3a3a5a;
+  color: #e0e0e0;
+}
+
+body.dark-mode .form-control:focus {
+  background-color: #2a2a50;
+  border-color: #e94560;
+  color: #fff;
+  box-shadow: 0 0 0 0.2rem rgba(233, 69, 96, 0.25);
+}
+
+body.dark-mode .form-control::placeholder {
+  color: #888;
+}
+
+body.dark-mode .btn-outline-secondary {
+  border-color: #6c757d;
+  color: #aaa;
+}
+
+body.dark-mode .btn-outline-secondary:hover {
+  background-color: #6c757d;
+  color: #fff;
+}
+
+body.dark-mode .filter-container {
+  background: rgba(30, 30, 50, 0.9);
+}
+
+body.dark-mode .filter-btn {
+  background: #252540;
+  border-color: #3a3a5a;
+  color: #e0e0e0;
+}
+
+body.dark-mode .filter-btn:hover {
+  border-color: #e94560;
+  color: #e94560;
+}
+
+body.dark-mode .cart-summary,
+body.dark-mode .order-details {
+  background-color: #252540;
+}
+
+body.dark-mode footer {
+  background: linear-gradient(135deg, #1a1a2e 0%, #0f0f20 100%);
+}
+
+body.dark-mode .text-muted {
+  color: #888 !important;
+}
+
+body.dark-mode hr {
+  border-color: #3a3a5a;
+}
+
+/* ===================== CART PAGE STYLES ===================== */
+.cart-page-card {
+  border-radius: 15px;
+  overflow: hidden;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+}
+
+.cart-page-item {
+  transition: background-color 0.2s ease;
+}
+
+.cart-page-item:hover {
+  background-color: #f8f9fa;
+}
+
+body.dark-mode .cart-page-item:hover {
+  background-color: #2a2a50;
+}
+
+/* ===================== CHECKOUT PAGE STYLES ===================== */
+.checkout-form-card,
+.checkout-summary-card {
+  border-radius: 15px;
+  overflow: hidden;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+}
+
+.order-success-card {
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+  animation: fadeInUp 0.5s ease;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.success-checkmark {
+  animation: scaleIn 0.5s ease 0.2s both;
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+/* ===================== THEME TOGGLE BUTTON ===================== */
+.btn-outline-light:focus {
+  box-shadow: 0 0 0 0.2rem rgba(255, 255, 255, 0.25);
+}
+
+/* ===================== PWA STYLES ===================== */
+.offline-indicator {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  background: #dc3545;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 25px;
+  font-weight: 500;
+  z-index: 9999;
+  animation: slideIn 0.3s ease;
+}
+
+.offline-indicator.online {
+  background: #28a745;
+}
+
+/* ===================== INSTALL PROMPT ===================== */
+.install-prompt {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  color: white;
+  padding: 15px 25px;
+  border-radius: 15px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  z-index: 9998;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+.install-prompt button {
+  white-space: nowrap;
 }

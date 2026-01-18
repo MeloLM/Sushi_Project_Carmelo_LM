@@ -9,10 +9,14 @@
 1. [Mappa del File System](#mappa-del-file-system)
 2. [Design Pattern Utilizzati](#design-pattern-utilizzati)
 3. [Flusso Dati](#flusso-dati)
-4. [Convenzioni di Codice](#convenzioni-di-codice)
-5. [Componenti: Specifiche Tecniche](#componenti-specifiche-tecniche)
-6. [Dipendenze & Configurazioni](#dipendenze--configurazioni)
-7. [Guida alle Modifiche](#guida-alle-modifiche)
+4. [Routing & Navigazione](#routing--navigazione)
+5. [Context API & State Management](#context-api--state-management)
+6. [Convenzioni di Codice](#convenzioni-di-codice)
+7. [Componenti: Specifiche Tecniche](#componenti-specifiche-tecniche)
+8. [Custom Hooks](#custom-hooks)
+9. [PWA & Service Worker](#pwa--service-worker)
+10. [Dipendenze & Configurazioni](#dipendenze--configurazioni)
+11. [Guida alle Modifiche](#guida-alle-modifiche)
 
 ---
 
@@ -24,27 +28,45 @@ Sushi_Project_Carmelo_LM-main/
 ├── 📄 package.json              # Dipendenze npm e script di build
 ├── 📄 README.md                 # Documentazione utente/overview
 ├── 📄 ARCHITECTURE.md           # Questo file - documentazione tecnica
+├── 📄 TODO.md                   # Task list e sprint tracking
 │
 ├── 📂 public/                   # Asset statici serviti direttamente
 │   ├── index.html              # Template HTML root (mount point React)
 │   ├── manifest.json           # Configurazione PWA (metadata app)
-│   └── robots.txt              # Direttive per crawler SEO
+│   ├── robots.txt              # Direttive per crawler SEO
+│   └── sw.js                   # Service Worker per PWA/offline
 │
 └── 📂 src/                      # Codice sorgente applicazione
     │
-    ├── 📄 index.js              # ⭐ ENTRY POINT - Bootstrap React + import CSS
+    ├── 📄 index.js              # ⭐ ENTRY POINT - Bootstrap React + CSS
     ├── 📄 index.css             # Reset CSS e font-family base
-    ├── 📄 App.js                # ⭐ ROOT COMPONENT - State management centrale
-    ├── 📄 App.css               # Stili globali (background, classi utility)
+    ├── 📄 App.js                # ⭐ ROOT COMPONENT - Router + Providers
+    ├── 📄 App.css               # Stili globali + Dark Mode + PWA
     ├── 📄 App.test.js           # Test unitari (Create React App default)
     ├── 📄 setupTests.js         # Configurazione Jest
     ├── 📄 reportWebVitals.js    # Metriche performance (CRA default)
     │
     ├── 📂 components/           # Componenti React riutilizzabili
     │   ├── Card.js             # Card prodotto singolo (presentational)
-    │   ├── Cart.js             # Modale carrello con totali (stateful)
-    │   ├── Navbar.js           # Header con logo e navigazione
-    │   └── Footer.js           # Footer con form feedback
+    │   ├── Cart.js             # Modale carrello con totali
+    │   ├── Footer.js           # Footer con form feedback
+    │   ├── Layout.js           # Layout wrapper con Navbar/Footer
+    │   ├── Navbar.js           # Header con logo, dark mode, cart link
+    │   ├── PWAPrompt.js        # Prompt installazione PWA
+    │   └── Toast.js            # Notifiche toast
+    │
+    ├── 📂 context/              # React Context per stato globale
+    │   ├── CartContext.js      # Context carrello + prodotti + toast
+    │   └── ThemeContext.js     # Context tema dark/light
+    │
+    ├── 📂 hooks/                # Custom React Hooks
+    │   ├── useCart.js          # Logica carrello estratta
+    │   └── usePWA.js           # Gestione PWA/Service Worker
+    │
+    ├── 📂 pages/                # Pagine/Route dell'applicazione
+    │   ├── HomePage.js         # Home con griglia prodotti e filtri
+    │   ├── CartPage.js         # Pagina carrello dedicata
+    │   └── CheckoutPage.js     # Form checkout con validazione
     │
     └── 📂 images/               # Asset grafici
         ├── california.png      # Immagine roll California
@@ -61,118 +83,259 @@ Sushi_Project_Carmelo_LM-main/
 
 | Cartella/File | Responsabilità | Modificare per... |
 |---------------|----------------|-------------------|
-| `src/App.js` | State management, layout principale | Aggiungere prodotti, modificare logica business |
-| `src/components/` | UI components | Modificare aspetto visivo, aggiungere elementi UI |
-| `src/images/` | Asset grafici | Aggiungere nuove immagini prodotto |
-| `src/App.css` | Stili globali | Modificare tema, background, utility classes |
-| `public/index.html` | Template HTML | Meta tags, favicon, titolo pagina |
+| `src/App.js` | Router + Provider setup | Aggiungere nuove route |
+| `src/context/` | Stato globale | Modificare logica business |
+| `src/pages/` | Pagine/Views | Modificare layout pagine |
+| `src/components/` | UI components | Modificare aspetto visivo |
+| `src/hooks/` | Logica riutilizzabile | Estrarre nuova logica |
+| `src/images/` | Asset grafici | Aggiungere nuove immagini |
+| `src/App.css` | Stili globali | Modificare tema, dark mode |
+| `public/sw.js` | Service Worker | Modificare caching strategy |
 
 ---
 
 ## 🎨 Design Pattern Utilizzati
 
-### 1. Container/Presentational Pattern
+### 1. Context Provider Pattern (Sprint 3)
 
-**Implementazione nel progetto:**
+**Nuova architettura con Context API:**
+
+```
+┌──────────────────────────────────────────────────────────────────┐
+│                         APP.JS                                    │
+│  ┌────────────────────────────────────────────────────────────┐  │
+│  │                    ThemeProvider                            │  │
+│  │  ┌──────────────────────────────────────────────────────┐  │  │
+│  │  │                  CartProvider                         │  │  │
+│  │  │  ┌────────────────────────────────────────────────┐  │  │  │
+│  │  │  │              BrowserRouter                      │  │  │  │
+│  │  │  │                   │                             │  │  │  │
+│  │  │  │              <Routes>                           │  │  │  │
+│  │  │  │                   │                             │  │  │  │
+│  │  │  │         ┌─────────┼─────────┐                   │  │  │  │
+│  │  │  │         ▼         ▼         ▼                   │  │  │  │
+│  │  │  │    HomePage   CartPage  CheckoutPage            │  │  │  │
+│  │  │  └────────────────────────────────────────────────┘  │  │  │
+│  │  └──────────────────────────────────────────────────────┘  │  │
+│  └────────────────────────────────────────────────────────────┘  │
+└──────────────────────────────────────────────────────────────────┘
+```
+
+### 2. Custom Hooks Pattern
+
+Logica estratta in hooks riutilizzabili:
+- `useCart` - Gestione carrello
+- `usePWA` - Funzionalità PWA
+
+```javascript
+// Uso in qualsiasi componente
+const { cards, incrementItem, totalQuantity } = useCartContext();
+const { darkMode, toggleDarkMode } = useTheme();
+```
+
+### 3. Compound Components (Layout)
+
+Layout wrapper che compone Navbar, Footer, Toast:
+
+```javascript
+// Layout.js
+<div className='bg_cstm'>
+  <Navbar />
+  <main>
+    <Outlet />  {/* React Router outlet */}
+  </main>
+  <Footer />
+  <Toast />
+  <PWAPrompt />
+</div>
+```
+
+### 4. Container/Presentational Pattern (Legacy)
+
+Ancora usato per componenti semplici come Card.js:
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                    CONTAINER COMPONENT                       │
-│                         App.js                               │
-│  ┌─────────────────────────────────────────────────────┐    │
-│  │  • Gestisce lo stato (useState)                      │    │
-│  │  • Contiene la logica business                       │    │
-│  │  • Passa dati e callback via props                   │    │
-│  └─────────────────────────────────────────────────────┘    │
-└──────────────────────────┬──────────────────────────────────┘
-                           │
-         ┌─────────────────┼─────────────────┐
-         │                 │                 │
-         ▼                 ▼                 ▼
-┌─────────────┐   ┌─────────────┐   ┌─────────────┐
-│ PRESENTATIONAL│ │ PRESENTATIONAL│ │  STATEFUL   │
-│   Card.js    │  │  Navbar.js   │  │  Cart.js    │
-│              │  │              │  │             │
-│ Solo render  │  │ Solo render  │  │ UI state    │
-│ Props → UI   │  │ Props → UI   │  │ (show/hide) │
-└─────────────┘   └─────────────┘   └─────────────┘
-```
-
-**File coinvolti:**
-- **Container:** `App.js` - Gestisce `cards` state e funzioni `handleIncrement`/`handleDecrement`
-- **Presentational:** `Card.js`, `Navbar.js`, `Footer.js` - Ricevono props, renderizzano UI
-- **Ibrido:** `Cart.js` - Riceve props ma gestisce proprio stato locale (`show` per modale)
-
-### 2. Lifting State Up
-
-Lo stato condiviso (`cards` array) è "sollevato" al componente padre comune più vicino (`App.js`), permettendo a più componenti figli di accedervi.
-
-```javascript
-// App.js - Stato sollevato
-const [cards, setCard] = useState([...]);
-
-// Passaggio ai figli
-<Card card={card} onIncrement={handleIncrement} />
-<Cart items={cards} />
-```
-
-### 3. Callback Props Pattern
-
-I componenti figli comunicano con il padre tramite callback passate come props:
-
-```javascript
-// App.js passa callback
-<Card onIncrement={handleIncrement} onDecrement={handleDecrement} />
-
-// Card.js invoca callback
-<button onClick={() => props.onIncrement(props.card)}>+</button>
-```
-
-### 4. Immutable State Updates
-
-Aggiornamenti stato seguono pattern immutabile (non mutano direttamente):
-
-```javascript
-// ✅ Pattern corretto usato
-const handleIncrement = card => {
-  const newCards = [...cards];           // Clona array
-  const id = newCards.indexOf(card);
-  newCards[id] = {...card};              // Clona oggetto
-  newCards[id].quantita++;               // Modifica clone
-  setCard(newCards);                     // Aggiorna stato
-}
+│ CONTEXT CONSUMERS (ricevono da Context)                      │
+│  HomePage, CartPage, CheckoutPage, Navbar                    │
+└─────────────────────────────┬───────────────────────────────┘
+                              │
+         ┌────────────────────┼────────────────────┐
+         │                    │                    │
+         ▼                    ▼                    ▼
+┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐
+│  PRESENTATIONAL │  │  PRESENTATIONAL │  │  PRESENTATIONAL │
+│    Card.js      │  │   Footer.js     │  │    Toast.js     │
+│                 │  │                 │  │                 │
+│   Props → UI    │  │   Props → UI    │  │   Props → UI    │
+└─────────────────┘  └─────────────────┘  └─────────────────┘
 ```
 
 ---
 
-## 🔄 Flusso Dati
+## 🚀 Routing & Navigazione
 
-### Diagramma Flusso Completo
+### Struttura Route
+
+```javascript
+// App.js
+<Router>
+  <Routes>
+    <Route path="/" element={<Layout />}>
+      <Route index element={<HomePage />} />
+      <Route path="cart" element={<CartPage />} />
+      <Route path="checkout" element={<CheckoutPage />} />
+    </Route>
+  </Routes>
+</Router>
+```
+
+### Mappa Route
+
+| Path | Componente | Descrizione |
+|------|------------|-------------|
+| `/` | `HomePage` | Griglia prodotti con filtri categoria |
+| `/cart` | `CartPage` | Visualizzazione carrello dedicata |
+| `/checkout` | `CheckoutPage` | Form ordine con validazione |
+
+### Navigazione Programmatica
+
+```javascript
+import { useNavigate, Link } from 'react-router-dom';
+
+// Link dichiarativo
+<Link to="/cart">Vai al Carrello</Link>
+
+// Navigazione programmatica
+const navigate = useNavigate();
+navigate('/checkout');
+```
+
+---
+
+## 🗃️ Context API & State Management
+
+### CartContext
+
+**File:** `src/context/CartContext.js`
+
+**Valori esposti:**
+```javascript
+{
+  // Prodotti
+  cards,              // Array tutti i prodotti
+  cartItems,          // Solo prodotti nel carrello (quantita > 0)
+  initialProducts,    // Prodotti iniziali per reset
+  
+  // Azioni
+  incrementItem,      // (card) => void
+  decrementItem,      // (card) => void
+  resetCart,          // () => void
+  
+  // Totali calcolati
+  totalQuantity,      // Numero totale pezzi
+  totalPrice,         // Prezzo lordo
+  discountPercent,    // % sconto applicato (5% ogni 10 pezzi)
+  discountAmount,     // Valore sconto in €
+  finalPrice,         // Prezzo finale con sconto
+  maxQuantity,        // Limite max per prodotto (99)
+  
+  // Toast
+  toast,              // { show, message, type }
+  showToast,          // (message, type) => void
+}
+```
+
+**Uso:**
+```javascript
+import { useCartContext } from '../context/CartContext';
+
+const MyComponent = () => {
+  const { cards, incrementItem, totalQuantity } = useCartContext();
+  // ...
+};
+```
+
+### ThemeContext
+
+**File:** `src/context/ThemeContext.js`
+
+**Valori esposti:**
+```javascript
+{
+  darkMode,           // boolean
+  toggleDarkMode,     // () => void
+  theme               // 'dark' | 'light'
+}
+```
+
+**Uso:**
+```javascript
+import { useTheme } from '../context/ThemeContext';
+
+const MyComponent = () => {
+  const { darkMode, toggleDarkMode } = useTheme();
+  // ...
+};
+```
+
+---
+
+## 🔄 Flusso Dati (Aggiornato Sprint 3)
+
+### Diagramma Flusso con Context
 
 ```
 ┌──────────────────────────────────────────────────────────────────┐
-│                         APP.JS (State Owner)                      │
+│                    CONTEXT PROVIDERS                              │
 │                                                                    │
-│  cards = [                                                        │
-│    {id:0, name:'California', prezzo:2.50, img:california, quantita:0},
-│    {id:1, name:'Dragon', prezzo:4.20, img:dragon, quantita:0},   │
-│    ...                                                            │
-│  ]                                                                │
-│                                                                    │
-│  handleIncrement(card) ──────┐                                    │
-│  handleDecrement(card) ──────┼── Modificano state                 │
-│                              │                                    │
-└──────────────────────────────┼────────────────────────────────────┘
-                               │
-        ┌──────────────────────┼──────────────────────┐
-        │                      │                      │
-        ▼ props: card,         ▼ props: items         ▼ (nessuna prop)
-        │ onIncrement,         │                      │
-        │ onDecrement          │                      │
-        │                      │                      │
-   ┌────┴────┐            ┌────┴────┐           ┌─────┴─────┐
-   │ Card.js │ (x6)       │ Cart.js │           │ Navbar.js │
-   │         │            │         │           │ Footer.js │
+│  ┌─────────────────────┐    ┌─────────────────────┐              │
+│  │    CartContext      │    │   ThemeContext      │              │
+│  │  ───────────────    │    │  ────────────────   │              │
+│  │  cards[]            │    │  darkMode: boolean  │              │
+│  │  incrementItem()    │    │  toggleDarkMode()   │              │
+│  │  decrementItem()    │    │                     │              │
+│  │  resetCart()        │    │                     │              │
+│  │  totalQuantity      │    │                     │              │
+│  │  finalPrice         │    │                     │              │
+│  └──────────┬──────────┘    └──────────┬──────────┘              │
+│             │                          │                          │
+└─────────────┼──────────────────────────┼──────────────────────────┘
+              │                          │
+              │    useCartContext()      │    useTheme()
+              │                          │
+    ┌─────────┼──────────────────────────┼─────────┐
+    │         │                          │         │
+    ▼         ▼                          ▼         ▼
+┌────────┐ ┌────────┐ ┌──────────┐ ┌────────┐ ┌────────┐
+│HomePage│ │CartPage│ │Checkout  │ │ Navbar │ │ Layout │
+│        │ │        │ │  Page    │ │        │ │        │
+└────────┘ └────────┘ └──────────┘ └────────┘ └────────┘
+```
+
+### Ciclo di Vita Interazione Utente
+
+```
+1. USER CLICK [+] button in Card (HomePage)
+         │
+         ▼
+2. Card.js invoca props.onIncrement(card)
+         │
+         ▼
+3. HomePage passa incrementItem da useCartContext()
+         │
+         ▼
+4. CartContext.incrementItem() aggiorna cards state
+         │
+         ▼
+5. localStorage sincronizzato via useEffect
+         │
+         ▼
+6. React re-renders tutti i consumer del context
+         │
+         ▼
+7. Navbar badge, CartPage totali, tutto aggiornato
+```
    └────┬────┘            └────┬────┘           └───────────┘
         │                      │
         │ onClick()            │ Calcola:
@@ -224,10 +387,94 @@ interface Card {
   prezzo: number;       // Prezzo unitario in EUR (es. 2.50)
   img: string;          // Riferimento import immagine
   quantita: number;     // Quantità nel carrello (default: 0)
+  categoria: string;    // 'roll' | 'nigiri' | 'special'
+  description: string;  // Descrizione ingredienti
 }
 
-// State
+// State nel Context
 cards: Card[]  // Array di 6 elementi
+```
+
+---
+
+## 🪝 Custom Hooks
+
+### useCart.js
+
+**File:** `src/hooks/useCart.js`
+
+Hook per gestione carrello con localStorage persistence.
+
+```javascript
+const {
+  cards,
+  cartItems,
+  incrementItem,
+  decrementItem,
+  resetCart,
+  totalQuantity,
+  totalPrice,
+  discountPercent,
+  discountAmount,
+  finalPrice,
+  maxQuantity
+} = useCart(initialProducts);
+```
+
+### usePWA.js
+
+**File:** `src/hooks/usePWA.js`
+
+Hook per funzionalità Progressive Web App.
+
+```javascript
+const {
+  isOnline,           // boolean - stato connessione
+  isInstallable,      // boolean - può essere installata
+  isInstalled,        // boolean - già installata
+  installApp,         // () => Promise - trigger install prompt
+  dismissInstallPrompt // () => void - chiudi prompt
+} = usePWA();
+```
+
+---
+
+## 📱 PWA & Service Worker
+
+### Configurazione PWA
+
+**Files coinvolti:**
+- `public/manifest.json` - Metadata app
+- `public/sw.js` - Service Worker
+- `src/hooks/usePWA.js` - Hook gestione
+- `src/components/PWAPrompt.js` - UI prompt
+
+### Service Worker Strategy
+
+```javascript
+// Cache-first per asset statici
+if (request.destination === 'image' || 
+    request.destination === 'script' || 
+    request.destination === 'style') {
+  // Prova cache, poi network
+}
+
+// Network-first per navigazione
+if (request.mode === 'navigate') {
+  // Prova network, fallback a /index.html
+}
+```
+
+### Manifest
+
+```json
+{
+  "short_name": "Sushi Project",
+  "name": "Sushi Project - Ordina Sushi Online",
+  "display": "standalone",
+  "theme_color": "#1a1a2e",
+  "background_color": "#1a1a2e"
+}
 ```
 
 ---
@@ -310,24 +557,90 @@ style={{width: '18rem', backgroundColor:'rgba(255, 255, 255, 0.666)'}}
 
 ## 🧩 Componenti: Specifiche Tecniche
 
-### App.js
+### App.js (Aggiornato Sprint 3)
 
 | Proprietà | Valore |
 |-----------|--------|
-| **Tipo** | Container Component |
-| **State** | `cards: Card[]` |
-| **Hooks** | `useState` |
-| **Children** | Navbar, Cart, Card (x6), Footer |
+| **Tipo** | Root Component con Providers |
+| **State** | `isLoading` (solo per spinner iniziale) |
+| **Hooks** | `useState`, `useEffect` |
+| **Providers** | ThemeProvider, CartProvider, BrowserRouter |
 
-**Metodi:**
+**Struttura:**
 ```javascript
-handleIncrement(card)  // Incrementa card.quantita di 1
-handleDecrement(card)  // Decrementa card.quantita di 1 (min 0)
+<ThemeProvider>
+  <CartProvider>
+    <Router>
+      <Routes>
+        <Route path="/" element={<Layout />}>
+          <Route index element={<HomePage />} />
+          <Route path="cart" element={<CartPage />} />
+          <Route path="checkout" element={<CheckoutPage />} />
+        </Route>
+      </Routes>
+    </Router>
+  </CartProvider>
+</ThemeProvider>
 ```
 
-**Note:** 
-- `handleDelete` presente ma commentato (non usato)
-- Prodotti hardcoded nell'array iniziale
+---
+
+### Layout.js (Nuovo Sprint 3)
+
+| Proprietà | Valore |
+|-----------|--------|
+| **Tipo** | Wrapper Component |
+| **Context** | useCartContext, useTheme |
+| **Children** | Navbar, Outlet, Footer, Toast, PWAPrompt |
+
+**Responsabilità:** Struttura comune a tutte le pagine.
+
+---
+
+### HomePage.js (Nuovo Sprint 3)
+
+| Proprietà | Valore |
+|-----------|--------|
+| **Tipo** | Page Component |
+| **Context** | useCartContext |
+| **State** | `activeFilter` per categoria |
+
+**Funzionalità:**
+- Griglia prodotti con Card
+- Filtri per categoria (all, roll, nigiri, special)
+- Link al carrello
+
+---
+
+### CartPage.js (Nuovo Sprint 3)
+
+| Proprietà | Valore |
+|-----------|--------|
+| **Tipo** | Page Component |
+| **Context** | useCartContext |
+| **Navigation** | useNavigate per checkout |
+
+**Funzionalità:**
+- Lista prodotti nel carrello con quantità
+- Modifica quantità inline
+- Totali e sconti
+- Bottone checkout
+
+---
+
+### CheckoutPage.js (Nuovo Sprint 3)
+
+| Proprietà | Valore |
+|-----------|--------|
+| **Tipo** | Page Component |
+| **Context** | useCartContext |
+| **State** | `formData`, `errors`, `isSubmitting`, `orderComplete` |
+
+**Funzionalità:**
+- Form dati consegna con validazione
+- Riepilogo ordine
+- Conferma ordine con numero generato
+- Redirect se carrello vuoto
 
 ---
 
@@ -336,7 +649,7 @@ handleDecrement(card)  // Decrementa card.quantita di 1 (min 0)
 | Proprietà | Valore |
 |-----------|--------|
 | **Tipo** | Presentational Component |
-| **Props** | `card`, `onIncrement`, `onDecrement` |
+| **Props** | `card`, `onIncrement`, `onDecrement`, `maxQuantity` |
 | **State** | Nessuno |
 
 **Props Interface:**
@@ -346,69 +659,52 @@ props.card = {
   name: string,
   prezzo: number,
   img: string,
-  quantita: number
+  quantita: number,
+  categoria: string,
+  description: string
 }
-props.onIncrement = (card) => void
-props.onDecrement = (card) => void
 ```
 
 ---
 
-### Cart.js
+### Navbar.js (Aggiornato Sprint 3)
 
 | Proprietà | Valore |
 |-----------|--------|
-| **Tipo** | Stateful Component |
-| **Props** | `items` (array cards) |
-| **State** | `show: boolean` |
-| **Hooks** | `useState` |
-
-**Logica Calcolo:**
-```javascript
-let totalQuantity = 0;
-let totalPrice = 0;
-
-props.items.forEach((item) => {
-  totalQuantity += item.quantita;
-  totalPrice += item.prezzo * item.quantita;
-});
-
-totalPrice = Math.round(totalPrice * 100) / 100; // Arrotondamento 2 decimali
-```
-
-**TODO commentato nel codice:**
-```javascript
-// Aggiungere 5% di sconto ogni 10 pezzi fino max 50% su tot
-```
-
----
-
-### Navbar.js
-
-| Proprietà | Valore |
-|-----------|--------|
-| **Tipo** | Presentational Component |
-| **Props** | Nessuna |
-| **State** | Nessuno |
+| **Tipo** | Consumer Component |
+| **Context** | useTheme, useCartContext |
+| **Props** | `logoSrc`, `title` |
 
 **Elementi:**
-- Logo: `sushi.png` (20px width via `.size_sm`)
-- Testo: "Sushi Project"
-- Button: "Contact" (non funzionale)
+- Logo con Link a home
+- Badge carrello con quantità totale
+- Toggle Dark Mode
+- Button Contact
 
 ---
 
-### Footer.js
+### Cart.js (Modale legacy)
 
 | Proprietà | Valore |
 |-----------|--------|
-| **Tipo** | Presentational Component |
-| **Props** | Nessuna |
-| **State** | Nessuno |
+| **Tipo** | Stateful Component (modale) |
+| **Props** | `items`, `onReset` |
+| **State** | `show`, `showConfirm`, `orderSent` |
 
-**Elementi:**
-- Form email (submit non gestito)
-- Link autore GitHub
+**Nota:** Componente legacy, la funzionalità carrello principale è ora in CartPage.
+
+---
+
+### PWAPrompt.js (Nuovo Sprint 3)
+
+| Proprietà | Valore |
+|-----------|--------|
+| **Tipo** | Consumer Component |
+| **Hook** | usePWA |
+
+**Funzionalità:**
+- Indicatore stato offline
+- Prompt installazione app
 
 ---
 
@@ -421,12 +717,13 @@ totalPrice = Math.round(totalPrice * 100) / 100; // Arrotondamento 2 decimali
   "dependencies": {
     "react": "^18.2.0",              // Core React
     "react-dom": "^18.2.0",          // React DOM renderer
+    "react-router-dom": "^6.x",      // Routing SPA (Sprint 3)
     "react-bootstrap": "^2.7.3",     // Componenti Bootstrap per React
     "bootstrap": "^5.2.3",           // CSS Framework
     "bootstrap-icons": "^1.10.4",    // Icone Bootstrap
+    "prop-types": "^15.x",           // Validazione props
     "react-scripts": "5.0.1",        // Create React App toolchain
-    "web-vitals": "^2.1.4",          // Performance metrics
-    "@testing-library/*": "..."      // Testing utilities
+    "web-vitals": "^2.1.4"           // Performance metrics
   }
 }
 ```
@@ -559,54 +856,45 @@ const handleSubmit = (e) => {
 
 ## ⚠️ Aree di Attenzione
 
-### Bug Potenziali
+### Note per Sviluppatori
 
-1. **Cart.js riga 39:** `key` su `<li>` invece che sull'elemento con `.map()`
-```javascript
-// Attuale (warning React)
-<li>
-  <div key={item.id}>
+1. **Context vs Props:** Usare `useCartContext()` e `useTheme()` invece di prop drilling
+2. **Routing:** Tutte le route sono nested dentro Layout per condividere Navbar/Footer
+3. **localStorage:** Gestito automaticamente da CartContext e ThemeContext
+4. **PWA:** Il service worker è in `public/sw.js`, registrato da `usePWA` hook
 
-// Corretto
-<li key={item.id}>
-  <div>
-```
+### Considerazioni Performance
 
-2. **handleDecrement:** Logica corretto ma potrebbe essere semplificata
-```javascript
-// Attuale
-if (newCards[id].quantita >= 0) {  
-  setCard(newCards);
-} else {
-  newCards[id].quantita = 0;
-}
+- Lazy loading immagini con `loading="lazy"`
+- Service Worker cache-first per asset statici
+- Context ottimizzato con `useCallback` per evitare re-render inutili
 
-// Più pulito
-newCards[id].quantita = Math.max(0, newCards[id].quantita - 1);
-setCard(newCards);
-```
-
-### Mancanze Note
+### Mancanze Note (Aggiornato Sprint 3) (Aggiornato Sprint 3)
 
 | Feature | Status | File da modificare |
 |---------|--------|-------------------|
-| Persistenza carrello | ❌ Mancante | App.js |
-| Sistema sconto | ❌ Commentato | Cart.js |
-| Form feedback | ❌ Non funzionale | Footer.js |
-| Contact button | ❌ Non funzionale | Navbar.js |
-| Validazione input | ❌ Mancante | Footer.js |
-| PropTypes | ❌ Non implementati | Tutti i componenti |
+| Persistenza carrello | ✅ Implementato | CartContext.js |
+| Sistema sconto | ✅ Implementato | CartContext.js |
+| Form checkout | ✅ Implementato | CheckoutPage.js |
+| Dark mode | ✅ Implementato | ThemeContext.js |
+| React Router | ✅ Implementato | App.js |
+| PWA | ✅ Implementato | sw.js, usePWA.js |
+| PropTypes | ✅ Implementati | Tutti i componenti |
+| Backend API | ❌ Da fare | Sprint 4 |
+| Autenticazione | ❌ Da fare | Sprint 4 |
 
 ---
 
 ## 📞 Riferimenti
 
-- [React Docs](https://reactjs.org/docs/getting-started.html)
+- [React Docs](https://react.dev/)
+- [React Router](https://reactrouter.com/)
 - [React Bootstrap](https://react-bootstrap.github.io/)
 - [Bootstrap 5](https://getbootstrap.com/docs/5.2/)
 - [Create React App](https://create-react-app.dev/)
+- [PWA](https://web.dev/progressive-web-apps/)
 
 ---
 
-*Documento generato: Gennaio 2026*  
-*Versione: 1.0.0*
+*Documento aggiornato: Gennaio 2026*  
+*Versione: 3.0.0 - Sprint 3 Completato*

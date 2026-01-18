@@ -11,45 +11,56 @@
 
 ---
 
-## 📈 Progresso Sprint 2
+## 📈 Progresso Sprint 3
 
 ```
-Completati: 15/15 ███████████████ 100% ✅
+Completati: 8/8 ████████████████ 100% ✅
 ```
 
 ---
 
-## 🎯 SPRINT 2 - COMPLETATO! 🎉
+## 🎯 SPRINT 3 - COMPLETATO! 🎉
 
-### ⚡ Funzionalità Core
+### ⚡ Architettura & Infrastruttura
 
 | # | Priorità | Task | File | Status |
 |---|----------|------|------|--------|
-| 1 | 🔴 | **Conferma ordine** - Modale di riepilogo finale con bottone "Invia Ordine" | `Cart.js` | ✅ |
-| 2 | 🔴 | **Quantità max 99** - Limite massimo per prodotto, disabilita bottone + | `App.js`, `Card.js` | ✅ |
-| 3 | 🟠 | **Descrizione prodotti** - Aggiungere campo `description` ai prodotti | `App.js`, `Card.js` | ✅ |
-| 4 | 🟠 | **Categorie prodotti** - Dividere in "Roll", "Nigiri", "Special" | `App.js` | ✅ |
-| 5 | 🟠 | **Filtro per categoria** - Bottoni per filtrare prodotti | `App.js` | ✅ |
+| 1 | 🔴 | **Custom hook useCart** - Estrarre logica carrello in hook dedicato | `src/hooks/useCart.js` | ✅ |
+| 2 | 🔴 | **Context API** - Gestione stato globale senza prop drilling | `src/context/CartContext.js`, `ThemeContext.js` | ✅ |
+| 3 | 🔴 | **React Router** - Navigazione `/`, `/cart`, `/checkout` | `App.js`, `src/pages/*` | ✅ |
+| 4 | 🟠 | **Pagina Checkout** - Form completo con validazione | `src/pages/CheckoutPage.js` | ✅ |
+| 5 | 🟠 | **Pagina Carrello** - Vista dedicata carrello | `src/pages/CartPage.js` | ✅ |
 
 ### 🎨 UI/UX Miglioramenti
 
 | # | Priorità | Task | File | Status |
 |---|----------|------|------|--------|
-| 6 | 🟠 | **Toast notifications** - Feedback "Aggiunto al carrello" | `App.js`, `Toast.js` | ✅ |
-| 7 | 🟠 | **Animazione quantità** - Transizione sul badge +/- | `App.css` | ✅ |
-| 8 | 🟡 | **Loader iniziale** - Spinner durante caricamento | `App.js`, `App.css` | ✅ |
-| 9 | 🟡 | **Responsive cards** - 1 colonna mobile, 2 tablet, 3 desktop | `App.css`, `Card.js` | ✅ |
-| 10 | 🟡 | **Footer migliorato** - Form con feedback visivo | `Footer.js`, `App.css` | ✅ |
+| 6 | 🟠 | **Dark Mode** - Toggle tema con persistenza localStorage | `ThemeContext.js`, `App.css`, `Navbar.js` | ✅ |
+| 7 | 🟡 | **Layout Component** - Wrapper con Navbar/Footer condivisi | `src/components/Layout.js` | ✅ |
 
-### 🛠️ Tecnico & Performance
+### 🛠️ PWA & Performance
 
 | # | Priorità | Task | File | Status |
 |---|----------|------|------|--------|
-| 11 | 🟠 | **PropTypes** - Validazione props su tutti i componenti | `*.js` | ✅ |
-| 12 | 🟡 | **Lazy loading immagini** - Ottimizzazione performance | `Card.js` | ✅ |
-| 13 | 🟡 | **Custom hook useCart** - Estrarre logica carrello | *Rimandato Sprint 3* | ⏭️ |
-| 14 | 🟢 | **Favicon config** - Configurazione icone browser | `public/index.html` | ✅ |
-| 15 | 🟢 | **Meta tags SEO** - Open Graph, description, Twitter Cards | `index.html` | ✅ |
+| 8 | 🟡 | **PWA Base** - Service Worker, manifest, offline support | `public/sw.js`, `manifest.json`, `usePWA.js` | ✅ |
+
+---
+
+## ✅ SPRINT 2 - COMPLETATO
+
+Tutti i 15 task del secondo sprint sono stati completati:
+- ✅ Conferma ordine con modale
+- ✅ Quantità max 99 per prodotto
+- ✅ Descrizioni e categorie prodotti
+- ✅ Filtro per categoria
+- ✅ Toast notifications
+- ✅ Animazioni quantità
+- ✅ Loader iniziale
+- ✅ Responsive cards
+- ✅ Footer migliorato
+- ✅ PropTypes su tutti i componenti
+- ✅ Lazy loading immagini
+- ✅ Meta tags SEO
 
 ---
 
@@ -70,34 +81,51 @@ Tutti i 15 task del primo sprint sono stati completati:
 
 ---
 
-## 🚀 SPRINT 3 - PIANIFICATO
+## 🚀 SPRINT 4 - PIANIFICATO
 
 | # | Task | Descrizione |
 |---|------|-------------|
-| 1 | Custom hook `useCart` | Estrarre logica carrello in hook dedicato |
-| 2 | Context API | Gestione stato globale senza prop drilling |
-| 3 | React Router | Navigazione `/`, `/cart`, `/checkout` |
-| 4 | Backend API | Integrazione con server per ordini reali |
-| 5 | Autenticazione | Sistema login/registrazione utenti |
-| 6 | Storico ordini | Dashboard ordini passati |
-| 7 | Dark mode | Toggle tema con persistenza |
-| 8 | PWA | Service worker per offline mode |
+| 1 | Backend API | Integrazione con server per ordini reali (Node.js/Express) |
+| 2 | Autenticazione | Sistema login/registrazione utenti (JWT) |
+| 3 | Storico ordini | Dashboard ordini passati dell'utente |
+| 4 | Pagamenti online | Integrazione Stripe/PayPal |
+| 5 | Gestione indirizzi | Salvataggio indirizzi multipli |
+| 6 | Notifiche push | Aggiornamenti stato ordine in tempo reale |
+| 7 | Admin dashboard | Pannello gestione ordini e prodotti |
+| 8 | i18n | Supporto multilingua (EN, IT) |
 
 ---
 
 ## 📝 Changelog
 
+### Sprint 3 (Completato)
+- **Nuovi file creati:**
+  - `src/hooks/useCart.js` - Custom hook per logica carrello
+  - `src/hooks/usePWA.js` - Hook per funzionalità PWA
+  - `src/context/CartContext.js` - Context per stato globale carrello
+  - `src/context/ThemeContext.js` - Context per tema dark/light
+  - `src/pages/HomePage.js` - Pagina home con prodotti
+  - `src/pages/CartPage.js` - Pagina carrello dedicata
+  - `src/pages/CheckoutPage.js` - Pagina checkout con form
+  - `src/components/Layout.js` - Layout wrapper con router outlet
+  - `src/components/PWAPrompt.js` - Prompt installazione PWA
+  - `public/sw.js` - Service Worker per offline mode
+
+- **File modificati:**
+  - `App.js` - Refactor completo con Router e Context providers
+  - `Navbar.js` - Aggiunto toggle dark mode e link carrello
+  - `App.css` - 200+ linee per dark mode, checkout, PWA styles
+  - `manifest.json` - Configurazione PWA completa
+
+- **Dipendenze aggiunte:**
+  - `react-router-dom` - Navigazione SPA
+
 ### Sprint 2 (Completato)
-- **Cart.js**: Aggiunto modale conferma ordine, PropTypes, redesign UI carrello
-- **App.js**: Loading screen, filtri categoria, toast notifications, MAX_QUANTITY
-- **Card.js**: PropTypes, lazy loading, responsive grid, category badges
-- **Toast.js**: NUOVO componente per notifiche
-- **Navbar.js**: PropTypes, icone, aria-labels
-- **Footer.js**: PropTypes, feedback form migliorato
-- **App.css**: 300+ linee di stili (loading, toast, filtri, responsive, animazioni)
-- **index.html**: Meta SEO completi (Open Graph, Twitter Cards)
-- **package.json**: Aggiunto prop-types
+- Cart.js, App.js, Card.js, Toast.js, Navbar.js, Footer.js
+- App.css con 300+ linee di stili
+- index.html con Meta SEO completi
+- prop-types per validazione
 
 ---
 
-*Ultimo aggiornamento: Sprint 2 completato - Ready for deployment!*
+*Ultimo aggiornamento: Sprint 3 completato - Ready for production!*
