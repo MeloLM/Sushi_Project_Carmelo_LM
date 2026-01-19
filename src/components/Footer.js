@@ -1,7 +1,17 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 
-function Footer({ email = 'carmelo.la.mantia00@gmail.com', githubUrl = 'https://github.com/MeloLM' }) {
+/**
+ * Footer Component
+ * TODO #13: Link social network
+ */
+function Footer({
+    email = 'carmelo.la.mantia00@gmail.com',
+    githubUrl = 'https://github.com/MeloLM',
+    instagramUrl = 'https://instagram.com',
+    facebookUrl = 'https://facebook.com',
+    twitterUrl = 'https://twitter.com'
+}) {
     const [feedbackSent, setFeedbackSent] = useState(false);
     const [inputValue, setInputValue] = useState('');
 
@@ -30,9 +40,9 @@ function Footer({ email = 'carmelo.la.mantia00@gmail.com', githubUrl = 'https://
                             </div>
 
                             <div className="col-md-5 col-12 my-2 my-md-0">
-                                <input 
-                                    type="email" 
-                                    className="form-control" 
+                                <input
+                                    type="email"
+                                    className="form-control"
                                     placeholder="La tua email..."
                                     value={inputValue}
                                     onChange={(e) => setInputValue(e.target.value)}
@@ -42,8 +52,8 @@ function Footer({ email = 'carmelo.la.mantia00@gmail.com', githubUrl = 'https://
                             </div>
 
                             <div className="col-auto">
-                                <button 
-                                    type="submit" 
+                                <button
+                                    type="submit"
                                     className="btn btn-primary"
                                     disabled={feedbackSent}
                                 >
@@ -63,21 +73,68 @@ function Footer({ email = 'carmelo.la.mantia00@gmail.com', githubUrl = 'https://
                         </div>
                     </form>
                 </section>
+
+                {/* TODO #13: Social Links */}
+                <section className="social-links mt-4">
+                    <p className="mb-2">
+                        <strong>Seguici sui social</strong>
+                    </p>
+                    <div className="d-flex justify-content-center gap-3">
+                        <a
+                            href={instagramUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="social-link instagram"
+                            aria-label="Seguici su Instagram"
+                            title="Instagram"
+                        >
+                            <i className="bi bi-instagram"></i>
+                        </a>
+                        <a
+                            href={facebookUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="social-link facebook"
+                            aria-label="Seguici su Facebook"
+                            title="Facebook"
+                        >
+                            <i className="bi bi-facebook"></i>
+                        </a>
+                        <a
+                            href={twitterUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="social-link twitter"
+                            aria-label="Seguici su Twitter"
+                            title="Twitter"
+                        >
+                            <i className="bi bi-twitter-x"></i>
+                        </a>
+                        <a
+                            href={githubUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="social-link github"
+                            aria-label="Visita il profilo GitHub"
+                            title="GitHub"
+                        >
+                            <i className="bi bi-github"></i>
+                        </a>
+                    </div>
+                </section>
             </div>
-    
-            <div className="text-center p-4" style={{borderTop: '1px solid rgba(255,255,255,0.1)'}}>
+
+            <div className="text-center p-4" style={{ borderTop: '1px solid rgba(255,255,255,0.1)' }}>
                 <p className="mb-2">
                     <i className="bi bi-code-slash me-2"></i>
                     Sviluppato con <i className="bi bi-heart-fill text-danger mx-1"></i> da Carmelo La Mantia
                 </p>
-                <a 
-                    className="text-white" 
-                    href={githubUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label="Visita il profilo GitHub"
+                <a
+                    className="text-white"
+                    href={`mailto:${email}`}
+                    aria-label="Invia email"
                 >
-                    <i className="bi bi-github me-2"></i>
+                    <i className="bi bi-envelope me-2"></i>
                     {email}
                 </a>
             </div>
@@ -87,7 +144,10 @@ function Footer({ email = 'carmelo.la.mantia00@gmail.com', githubUrl = 'https://
 
 Footer.propTypes = {
     email: PropTypes.string,
-    githubUrl: PropTypes.string
+    githubUrl: PropTypes.string,
+    instagramUrl: PropTypes.string,
+    facebookUrl: PropTypes.string,
+    twitterUrl: PropTypes.string
 };
 
 export default Footer;

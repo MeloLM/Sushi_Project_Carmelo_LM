@@ -81,51 +81,60 @@ Tutti i 15 task del primo sprint sono stati completati:
 
 ---
 
-## 🚀 SPRINT 4 - PIANIFICATO
+## � PROSSIMI PASSI (In fase di definizione)
 
-| # | Task | Descrizione |
-|---|------|-------------|
-| 1 | Backend API | Integrazione con server per ordini reali (Node.js/Express) |
-| 2 | Autenticazione | Sistema login/registrazione utenti (JWT) |
-| 3 | Storico ordini | Dashboard ordini passati dell'utente |
-| 4 | Pagamenti online | Integrazione Stripe/PayPal |
-| 5 | Gestione indirizzi | Salvataggio indirizzi multipli |
-| 6 | Notifiche push | Aggiornamenti stato ordine in tempo reale |
-| 7 | Admin dashboard | Pannello gestione ordini e prodotti |
-| 8 | i18n | Supporto multilingua (EN, IT) |
+Stiamo valutando nuove funzionalità per il prossimo sprint. Le opzioni includono:
+- **Frontend Avanzato**: Dettaglio prodotti, filtri avanzati, coupon.
+- **Gamification**: Punti sushi, livelli utente, badge.
+- **Backend Reale**: Integrazione con database e API.
 
 ---
 
-## 📝 Changelog
+## � Changelog
 
-### Sprint 3 (Completato)
+### Sprint 4 (Completato) - Frontend UI/UX 🎉
+- **Nuove Funzionalità:**
+  - ✅ Pagina 404 animata
+  - ✅ Scroll to top
+  - ✅ Skeleton loading
+  - ✅ Sistema Favoriti (localStorage)
+  - ✅ Ricerca prodotti
+  - ✅ Modale conferma svuota carrello
+  - ✅ Stima consegna dinamica
+  - ✅ Breadcrumb navigation
+  - ✅ Footer social links
+  - ✅ Meta titoli dinamici
+- **UI Improvements:**
+  - ✅ Animazioni carrello e quantità
+  - ✅ Badge categoria emoji
+  - ✅ Icone allergeni
+  - ✅ Tooltip informativi
+
+### Sprint 3 (Completato) - Core Architecture
 - **Nuovi file creati:**
   - `src/hooks/useCart.js` - Custom hook per logica carrello
   - `src/hooks/usePWA.js` - Hook per funzionalità PWA
   - `src/context/CartContext.js` - Context per stato globale carrello
-  - `src/context/ThemeContext.js` - Context per tema dark/light
-  - `src/pages/HomePage.js` - Pagina home con prodotti
-  - `src/pages/CartPage.js` - Pagina carrello dedicata
-  - `src/pages/CheckoutPage.js` - Pagina checkout con form
-  - `src/components/Layout.js` - Layout wrapper con router outlet
-  - `src/components/PWAPrompt.js` - Prompt installazione PWA
-  - `public/sw.js` - Service Worker per offline mode
+  - `src/context/ThemeContext.js` - Context per stato tema
+  - `src/pages/*` - Pagine Home, Cart, Checkout
+  - `src/components/Layout.js` - Layout wrapper
+- **Modifiche:**
+  - Refactor completo App.js
+  - Navbar migliorata
+  - PWA setup
 
-- **File modificati:**
-  - `App.js` - Refactor completo con Router e Context providers
-  - `Navbar.js` - Aggiunto toggle dark mode e link carrello
-  - `App.css` - 200+ linee per dark mode, checkout, PWA styles
-  - `manifest.json` - Configurazione PWA completa
+### Sprint 2 (Completato) - UI Components
+- Conferma ordine, Quantità max, Filtri categoria
+- Toast notifications, Loader
+- Responsive design, Lazy loading
+- SEO Optimization
 
-- **Dipendenze aggiunte:**
-  - `react-router-dom` - Navigazione SPA
-
-### Sprint 2 (Completato)
-- Cart.js, App.js, Card.js, Toast.js, Navbar.js, Footer.js
-- App.css con 300+ linee di stili
-- index.html con Meta SEO completi
-- prop-types per validazione
+### Sprint 1 (Completato) - Foundation
+- Bug fixes, LocalStorage
+- Sconto progressivo
+- Struttura dati prodotti
+- CSS base e A11y
 
 ---
 
-*Ultimo aggiornamento: Sprint 3 completato - Ready for production!*
+*Ultimo aggiornamento: Fine Sprint 4*

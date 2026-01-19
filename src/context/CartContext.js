@@ -12,15 +12,19 @@ import fungi from '../images/shrimp.png';
 // Costanti
 const MAX_QUANTITY = 99;
 const STORAGE_KEY = 'sushiCart';
+const FAVORITES_KEY = 'sushiFavorites'; // TODO #5: Chiave localStorage per favoriti
 
-// Dati prodotti iniziali
+// TODO #10: Legenda allergeni
+// 🦐 = crostacei, 🐟 = pesce, 🥛 = latticini, 🥚 = uova, 🌾 = glutine, 🥜 = soia
+
+// Dati prodotti iniziali con allergeni (TODO #10)
 const initialProducts = [
-  { id: 0, name: 'California', prezzo: 2.50, img: california, quantita: 0, categoria: 'roll', description: 'Granchio, avocado, cetriolo, tobiko' },
-  { id: 1, name: 'Dragon', prezzo: 4.20, img: dragon, quantita: 0, categoria: 'special', description: 'Anguilla, avocado, salsa teriyaki' },
-  { id: 2, name: 'Dynamite', prezzo: 2.10, img: dynamite, quantita: 0, categoria: 'roll', description: 'Gambero in tempura, maionese piccante' },
-  { id: 3, name: 'Whitey', prezzo: 1.50, img: whitey, quantita: 0, categoria: 'roll', description: 'Salmone, philadelphia, erba cipollina' },
-  { id: 4, name: 'Rainbow', prezzo: 3.40, img: rainbow, quantita: 0, categoria: 'special', description: 'Mix di pesce fresco, avocado' },
-  { id: 5, name: 'Fungi', prezzo: 2.80, img: fungi, quantita: 0, categoria: 'nigiri', description: 'Gambero, riso, salsa speciale' },
+  { id: 0, name: 'California', prezzo: 2.50, img: california, quantita: 0, categoria: 'roll', description: 'Granchio, avocado, cetriolo, tobiko', allergeni: ['crostacei', 'pesce'] },
+  { id: 1, name: 'Dragon', prezzo: 4.20, img: dragon, quantita: 0, categoria: 'special', description: 'Anguilla, avocado, salsa teriyaki', allergeni: ['pesce', 'soia', 'glutine'] },
+  { id: 2, name: 'Dynamite', prezzo: 2.10, img: dynamite, quantita: 0, categoria: 'roll', description: 'Gambero in tempura, maionese piccante', allergeni: ['crostacei', 'uova', 'glutine'] },
+  { id: 3, name: 'Whitey', prezzo: 1.50, img: whitey, quantita: 0, categoria: 'roll', description: 'Salmone, philadelphia, erba cipollina', allergeni: ['pesce', 'latticini'] },
+  { id: 4, name: 'Rainbow', prezzo: 3.40, img: rainbow, quantita: 0, categoria: 'special', description: 'Mix di pesce fresco, avocado', allergeni: ['pesce', 'crostacei'] },
+  { id: 5, name: 'Fungi', prezzo: 2.80, img: fungi, quantita: 0, categoria: 'nigiri', description: 'Gambero, riso, salsa speciale', allergeni: ['crostacei', 'soia'] },
 ];
 
 // Crea Context
@@ -39,11 +43,22 @@ export const useCartContext = () => {
 export const CartProvider = ({ children }) => {
   // Toast state
   const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
-  
+
   // Dark mode state
   const [darkMode, setDarkMode] = useState(() => {
     const saved = localStorage.getItem('darkMode');
     return saved ? JSON.parse(saved) : false;
+  });
+
+  // TODO #5: Favoriti state con persistenza localStorage
+  const [favorites, setFavorites] = useState(() => {
+    try {
+      const saved = localStorage.getItem(FAVORITES_KEY);
+      return saved ? JSON.parse(saved) : [];
+    } catch (error) {
+      console.error('Errore caricamento favoriti:', error);
+      return [];
+    }
   });
 
   // Carica carrello da localStorage
@@ -74,11 +89,34 @@ export const CartProvider = ({ children }) => {
     document.body.classList.toggle('dark-mode', darkMode);
   }, [darkMode]);
 
+  // TODO #5: Salva favoriti in localStorage
+  React.useEffect(() => {
+    localStorage.setItem(FAVORITES_KEY, JSON.stringify(favorites));
+  }, [favorites]);
+
   // Mostra toast notification
   const showToast = useCallback((message, type = 'success') => {
     setToast({ show: true, message, type });
     setTimeout(() => setToast({ show: false, message: '', type: 'success' }), 2500);
   }, []);
+
+  // TODO #5: Toggle favorito
+  const toggleFavorite = useCallback((productId) => {
+    setFavorites(prev => {
+      if (prev.includes(productId)) {
+        showToast('Rimosso dai preferiti', 'info');
+        return prev.filter(id => id !== productId);
+      } else {
+        showToast('Aggiunto ai preferiti ❤️', 'success');
+        return [...prev, productId];
+      }
+    });
+  }, [showToast]);
+
+  // TODO #5: Check se prodotto è favorito
+  const isFavorite = useCallback((productId) => {
+    return favorites.includes(productId);
+  }, [favorites]);
 
   // Toggle dark mode
   const toggleDarkMode = useCallback(() => {
@@ -91,7 +129,7 @@ export const CartProvider = ({ children }) => {
       showToast(`Massimo ${MAX_QUANTITY} pezzi per prodotto!`, 'warning');
       return;
     }
-    
+
     setCards(prevCards => {
       const newCards = [...prevCards];
       const idx = newCards.findIndex(c => c.id === card.id);
@@ -100,7 +138,7 @@ export const CartProvider = ({ children }) => {
       }
       return newCards;
     });
-    
+
     showToast(`${card.name} Roll aggiunto!`, 'success');
   }, [showToast]);
 
@@ -145,12 +183,17 @@ export const CartProvider = ({ children }) => {
     cards,
     cartItems,
     initialProducts,
-    
+
     // Azioni carrello
     incrementItem,
     decrementItem,
     resetCart,
-    
+
+    // TODO #5: Favoriti
+    favorites,
+    toggleFavorite,
+    isFavorite,
+
     // Totali
     totalQuantity: totals.totalQuantity,
     totalPrice: totals.totalPrice,
@@ -158,11 +201,11 @@ export const CartProvider = ({ children }) => {
     discountAmount,
     finalPrice,
     maxQuantity: MAX_QUANTITY,
-    
+
     // Toast
     toast,
     showToast,
-    
+
     // Dark mode
     darkMode,
     toggleDarkMode
