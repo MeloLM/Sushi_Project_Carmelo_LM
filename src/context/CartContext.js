@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
 import PropTypes from 'prop-types';
+import { useSushiPoints } from '../hooks/useSushiPoints';
 
 // Import immagini
 import california from '../images/california.png';
@@ -9,15 +10,10 @@ import whitey from '../images/philadelphia.png';
 import rainbow from '../images/rainbow.png';
 import fungi from '../images/shrimp.png';
 
-// Costanti
 const MAX_QUANTITY = 99;
 const STORAGE_KEY = 'sushiCart';
-const FAVORITES_KEY = 'sushiFavorites'; // TODO #5: Chiave localStorage per favoriti
+const FAVORITES_KEY = 'sushiFavorites';
 
-// TODO #10: Legenda allergeni
-// 🦐 = crostacei, 🐟 = pesce, 🥛 = latticini, 🥚 = uova, 🌾 = glutine, 🥜 = soia
-
-// Dati prodotti iniziali con allergeni (TODO #10)
 const initialProducts = [
   { id: 0, name: 'California', prezzo: 2.50, img: california, quantita: 0, categoria: 'roll', description: 'Granchio, avocado, cetriolo, tobiko', allergeni: ['crostacei', 'pesce'] },
   { id: 1, name: 'Dragon', prezzo: 4.20, img: dragon, quantita: 0, categoria: 'special', description: 'Anguilla, avocado, salsa teriyaki', allergeni: ['pesce', 'soia', 'glutine'] },
@@ -27,138 +23,92 @@ const initialProducts = [
   { id: 5, name: 'Fungi', prezzo: 2.80, img: fungi, quantita: 0, categoria: 'nigiri', description: 'Gambero, riso, salsa speciale', allergeni: ['crostacei', 'soia'] },
 ];
 
-// Crea Context
 const CartContext = createContext(null);
 
-// Hook per usare il context
 export const useCartContext = () => {
   const context = useContext(CartContext);
-  if (!context) {
-    throw new Error('useCartContext deve essere usato dentro CartProvider');
-  }
+  if (!context) throw new Error('useCartContext deve essere usato dentro CartProvider');
   return context;
 };
 
-// Provider Component
 export const CartProvider = ({ children }) => {
-  // Toast state
   const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
-
-  // Dark mode state
   const [darkMode, setDarkMode] = useState(() => {
     const saved = localStorage.getItem('darkMode');
     return saved ? JSON.parse(saved) : false;
   });
-
-  // TODO #5: Favoriti state con persistenza localStorage
   const [favorites, setFavorites] = useState(() => {
-    try {
-      const saved = localStorage.getItem(FAVORITES_KEY);
-      return saved ? JSON.parse(saved) : [];
-    } catch (error) {
-      console.error('Errore caricamento favoriti:', error);
-      return [];
-    }
+    try { return JSON.parse(localStorage.getItem(FAVORITES_KEY) || '[]'); }
+    catch { return []; }
   });
-
-  // Carica carrello da localStorage
   const [cards, setCards] = useState(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
         const parsed = JSON.parse(saved);
-        return parsed.map((item, idx) => ({
-          ...initialProducts[idx],
-          quantita: item.quantita || 0
-        }));
+        return parsed.map((item, idx) => ({ ...initialProducts[idx], quantita: item.quantita || 0 }));
       }
-    } catch (error) {
-      console.error('Errore caricamento carrello:', error);
-    }
+    } catch { /* ignore */ }
     return initialProducts;
   });
 
-  // Salva carrello in localStorage
-  React.useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(cards));
-  }, [cards]);
+  // Coupon state
+  const [coupon, setCoupon] = useState(null); // { code, discountPercent }
 
-  // Salva dark mode in localStorage
+  // Sushi Points (condivisi via context)
+  const { points: sushiPoints, totalOrders, addPoints, level: sushiLevel } = useSushiPoints();
+
+  React.useEffect(() => { localStorage.setItem(STORAGE_KEY, JSON.stringify(cards)); }, [cards]);
   React.useEffect(() => {
     localStorage.setItem('darkMode', JSON.stringify(darkMode));
     document.body.classList.toggle('dark-mode', darkMode);
   }, [darkMode]);
+  React.useEffect(() => { localStorage.setItem(FAVORITES_KEY, JSON.stringify(favorites)); }, [favorites]);
 
-  // TODO #5: Salva favoriti in localStorage
-  React.useEffect(() => {
-    localStorage.setItem(FAVORITES_KEY, JSON.stringify(favorites));
-  }, [favorites]);
-
-  // Mostra toast notification
   const showToast = useCallback((message, type = 'success') => {
     setToast({ show: true, message, type });
     setTimeout(() => setToast({ show: false, message: '', type: 'success' }), 2500);
   }, []);
 
-  // TODO #5: Toggle favorito
   const toggleFavorite = useCallback((productId) => {
     setFavorites(prev => {
-      if (prev.includes(productId)) {
-        showToast('Rimosso dai preferiti', 'info');
-        return prev.filter(id => id !== productId);
-      } else {
-        showToast('Aggiunto ai preferiti ❤️', 'success');
-        return [...prev, productId];
-      }
+      if (prev.includes(productId)) { showToast('Rimosso dai preferiti', 'info'); return prev.filter(id => id !== productId); }
+      showToast('Aggiunto ai preferiti ❤️', 'success');
+      return [...prev, productId];
     });
   }, [showToast]);
 
-  // TODO #5: Check se prodotto è favorito
-  const isFavorite = useCallback((productId) => {
-    return favorites.includes(productId);
-  }, [favorites]);
+  const isFavorite = useCallback((productId) => favorites.includes(productId), [favorites]);
+  const toggleDarkMode = useCallback(() => setDarkMode(prev => !prev), []);
 
-  // Toggle dark mode
-  const toggleDarkMode = useCallback(() => {
-    setDarkMode(prev => !prev);
-  }, []);
-
-  // Incrementa quantità
   const incrementItem = useCallback((card) => {
-    if (card.quantita >= MAX_QUANTITY) {
-      showToast(`Massimo ${MAX_QUANTITY} pezzi per prodotto!`, 'warning');
-      return;
-    }
-
-    setCards(prevCards => {
-      const newCards = [...prevCards];
-      const idx = newCards.findIndex(c => c.id === card.id);
-      if (idx !== -1) {
-        newCards[idx] = { ...newCards[idx], quantita: newCards[idx].quantita + 1 };
-      }
-      return newCards;
-    });
-
+    if (card.quantita >= MAX_QUANTITY) { showToast(`Massimo ${MAX_QUANTITY} pezzi!`, 'warning'); return; }
+    setCards(prev => prev.map(c => c.id === card.id ? { ...c, quantita: c.quantita + 1 } : c));
     showToast(`${card.name} Roll aggiunto!`, 'success');
   }, [showToast]);
 
-  // Decrementa quantità
   const decrementItem = useCallback((card) => {
-    setCards(prevCards => {
-      const newCards = [...prevCards];
-      const idx = newCards.findIndex(c => c.id === card.id);
-      if (idx !== -1 && newCards[idx].quantita > 0) {
-        newCards[idx] = { ...newCards[idx], quantita: newCards[idx].quantita - 1 };
-        showToast(`${card.name} Roll rimosso`, 'info');
-      }
-      return newCards;
-    });
+    setCards(prev => prev.map(c => {
+      if (c.id === card.id && c.quantita > 0) { showToast(`${card.name} Roll rimosso`, 'info'); return { ...c, quantita: c.quantita - 1 }; }
+      return c;
+    }));
   }, [showToast]);
 
-  // Svuota carrello
   const resetCart = useCallback(() => {
     setCards(initialProducts.map(p => ({ ...p, quantita: 0 })));
+    setCoupon(null);
     showToast('Carrello svuotato', 'info');
+  }, [showToast]);
+
+  // Coupon actions
+  const applyCoupon = useCallback((code, discountPercent) => {
+    setCoupon({ code, discountPercent });
+    showToast(`Coupon ${code} applicato! -${discountPercent}%`, 'success');
+  }, [showToast]);
+
+  const removeCoupon = useCallback(() => {
+    setCoupon(null);
+    showToast('Coupon rimosso', 'info');
   }, [showToast]);
 
   // Calcola totali
@@ -167,59 +117,38 @@ export const CartProvider = ({ children }) => {
     acc.totalPrice += item.prezzo * item.quantita;
     return acc;
   }, { totalQuantity: 0, totalPrice: 0 });
-
   totals.totalPrice = Math.round(totals.totalPrice * 100) / 100;
 
-  // Sistema sconto
   const discountPercent = Math.min(Math.floor(totals.totalQuantity / 10) * 5, 50);
-  const discountAmount = totals.totalPrice * (discountPercent / 100);
-  const finalPrice = Math.round((totals.totalPrice - discountAmount) * 100) / 100;
+  const discountAmount = Math.round(totals.totalPrice * (discountPercent / 100) * 100) / 100;
+  const priceAfterQuantityDiscount = Math.round((totals.totalPrice - discountAmount) * 100) / 100;
 
-  // Items nel carrello
+  // Applica coupon sopra lo sconto quantità
+  const couponDiscountAmount = coupon
+    ? Math.round(priceAfterQuantityDiscount * (coupon.discountPercent / 100) * 100) / 100
+    : 0;
+  const finalPrice = Math.round((priceAfterQuantityDiscount - couponDiscountAmount) * 100) / 100;
+
   const cartItems = cards.filter(item => item.quantita > 0);
 
   const value = {
-    // Prodotti
-    cards,
-    cartItems,
-    initialProducts,
-
-    // Azioni carrello
-    incrementItem,
-    decrementItem,
-    resetCart,
-
-    // TODO #5: Favoriti
-    favorites,
-    toggleFavorite,
-    isFavorite,
-
-    // Totali
+    cards, cartItems, initialProducts,
+    incrementItem, decrementItem, resetCart,
+    favorites, toggleFavorite, isFavorite,
     totalQuantity: totals.totalQuantity,
     totalPrice: totals.totalPrice,
-    discountPercent,
-    discountAmount,
+    discountPercent, discountAmount,
+    coupon, applyCoupon, removeCoupon,
+    couponDiscountAmount,
     finalPrice,
     maxQuantity: MAX_QUANTITY,
-
-    // Toast
-    toast,
-    showToast,
-
-    // Dark mode
-    darkMode,
-    toggleDarkMode
+    toast, showToast,
+    darkMode, toggleDarkMode,
+    sushiPoints, totalOrders, addPoints, sushiLevel,
   };
 
-  return (
-    <CartContext.Provider value={value}>
-      {children}
-    </CartContext.Provider>
-  );
+  return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 };
 
-CartProvider.propTypes = {
-  children: PropTypes.node.isRequired
-};
-
+CartProvider.propTypes = { children: PropTypes.node.isRequired };
 export default CartContext;

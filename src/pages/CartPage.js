@@ -2,47 +2,25 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCartContext } from '../context';
 import { Breadcrumb } from '../components';
+import { useCoupon } from '../hooks/useCoupon';
 
-/**
- * CartPage - Pagina carrello dedicata
- * TODO #7: Modale conferma svuota carrello
- * TODO #9: Stima tempo consegna dinamica
- * TODO #12: Breadcrumb
- */
 const CartPage = () => {
   const navigate = useNavigate();
   const {
-    cartItems,
-    totalQuantity,
-    totalPrice,
-    discountPercent,
-    discountAmount,
-    finalPrice,
-    resetCart,
-    incrementItem,
-    decrementItem
+    cartItems, totalQuantity, totalPrice,
+    discountPercent, discountAmount,
+    coupon, applyCoupon, removeCoupon, couponDiscountAmount,
+    finalPrice, resetCart, incrementItem, decrementItem
   } = useCartContext();
 
-  // TODO #7: State per modale conferma
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [couponInput, setCouponInput] = useState('');
+  const { loading: couponLoading, error: couponError, validateCoupon } = useCoupon();
 
-  const handleCheckout = () => {
-    if (totalQuantity > 0) {
-      navigate('/checkout');
-    }
-  };
+  const handleCheckout = () => { if (totalQuantity > 0) navigate('/checkout'); };
+  const handleResetCart = () => setShowConfirmModal(true);
+  const confirmResetCart = () => { resetCart(); setShowConfirmModal(false); };
 
-  // TODO #7: Gestione svuota carrello con conferma
-  const handleResetCart = () => {
-    setShowConfirmModal(true);
-  };
-
-  const confirmResetCart = () => {
-    resetCart();
-    setShowConfirmModal(false);
-  };
-
-  // TODO #9: Calcola stima tempo consegna in base alla quantità
   const getDeliveryEstimate = () => {
     if (totalQuantity <= 5) return '20-30';
     if (totalQuantity <= 15) return '30-45';
@@ -50,9 +28,10 @@ const CartPage = () => {
     return '60-90';
   };
 
+  const handleApplyCoupon = () => validateCoupon(couponInput, applyCoupon);
+
   return (
     <div className="container py-5">
-      {/* TODO #12: Breadcrumb */}
       <Breadcrumb />
 
       <div className="row justify-content-center">
@@ -60,12 +39,10 @@ const CartPage = () => {
           <div className="card cart-page-card">
             <div className="card-header bg-dark text-white d-flex justify-content-between align-items-center">
               <h2 className="mb-0">
-                <i className="bi bi-cart3 me-2"></i>
-                Il tuo Carrello
+                <i className="bi bi-cart3 me-2"></i>Il tuo Carrello
               </h2>
               <Link to="/" className="btn btn-outline-light btn-sm">
-                <i className="bi bi-arrow-left me-1"></i>
-                Continua a ordinare
+                <i className="bi bi-arrow-left me-1"></i>Continua a ordinare
               </Link>
             </div>
 
@@ -76,8 +53,7 @@ const CartPage = () => {
                   <h4 className="mt-3 text-muted">Il carrello è vuoto</h4>
                   <p className="text-muted">Aggiungi qualche delizioso sushi!</p>
                   <Link to="/" className="btn btn-primary mt-3">
-                    <i className="bi bi-shop me-2"></i>
-                    Vai al Menu
+                    <i className="bi bi-shop me-2"></i>Vai al Menu
                   </Link>
                 </div>
               ) : (
@@ -87,12 +63,7 @@ const CartPage = () => {
                       <li key={item.id} className="list-group-item cart-page-item cart-item-animate">
                         <div className="row align-items-center">
                           <div className="col-3 col-md-2">
-                            <img
-                              src={item.img}
-                              alt={item.name}
-                              className="img-fluid rounded"
-                              style={{ maxHeight: '60px', objectFit: 'cover' }}
-                            />
+                            <img src={item.img} alt={item.name} className="img-fluid rounded" style={{ maxHeight: '60px', objectFit: 'cover' }} />
                           </div>
                           <div className="col-5 col-md-4">
                             <h6 className="mb-1">{item.name} Roll</h6>
@@ -100,27 +71,17 @@ const CartPage = () => {
                           </div>
                           <div className="col-4 col-md-3 text-center">
                             <div className="quantity-controls-inline">
-                              <button
-                                className="btn btn-outline-danger btn-sm"
-                                onClick={() => decrementItem(item)}
-                                title="Rimuovi uno"
-                              >
+                              <button className="btn btn-outline-danger btn-sm" onClick={() => decrementItem(item)}>
                                 <i className="bi bi-dash"></i>
                               </button>
                               <span className="mx-2 fw-bold quantity-badge">{item.quantita}</span>
-                              <button
-                                className="btn btn-outline-success btn-sm"
-                                onClick={() => incrementItem(item)}
-                                title="Aggiungi uno"
-                              >
+                              <button className="btn btn-outline-success btn-sm" onClick={() => incrementItem(item)}>
                                 <i className="bi bi-plus"></i>
                               </button>
                             </div>
                           </div>
                           <div className="col-12 col-md-3 text-end mt-2 mt-md-0">
-                            <span className="fw-bold text-success">
-                              {(item.prezzo * item.quantita).toFixed(2)}€
-                            </span>
+                            <span className="fw-bold text-success">{(item.prezzo * item.quantita).toFixed(2)}€</span>
                           </div>
                         </div>
                       </li>
@@ -137,11 +98,54 @@ const CartPage = () => {
 
                     {discountPercent > 0 && (
                       <div className="d-flex justify-content-between mb-2 text-success">
-                        <span>
-                          <i className="bi bi-tag-fill me-1"></i>
-                          Sconto {discountPercent}%:
-                        </span>
+                        <span><i className="bi bi-tag-fill me-1"></i>Sconto quantità {discountPercent}%:</span>
                         <span>-{discountAmount.toFixed(2)}€</span>
+                      </div>
+                    )}
+
+                    {/* Coupon input */}
+                    <div className="coupon-section my-3">
+                      {coupon ? (
+                        <div className="d-flex justify-content-between align-items-center coupon-applied">
+                          <span>
+                            <i className="bi bi-ticket-perforated-fill me-1 text-success"></i>
+                            <strong>{coupon.code}</strong>
+                            <span className="text-success ms-1">-{coupon.discountPercent}%</span>
+                          </span>
+                          <button className="btn btn-sm btn-outline-danger" onClick={removeCoupon}>
+                            <i className="bi bi-x"></i>
+                          </button>
+                        </div>
+                      ) : (
+                        <div>
+                          <div className="input-group input-group-sm">
+                            <input
+                              type="text"
+                              className={`form-control coupon-input ${couponError ? 'is-invalid' : ''}`}
+                              placeholder="Codice coupon (es. SUSHI10)"
+                              value={couponInput}
+                              onChange={e => setCouponInput(e.target.value)}
+                              onKeyDown={e => e.key === 'Enter' && handleApplyCoupon()}
+                            />
+                            <button
+                              className="btn btn-outline-secondary"
+                              onClick={handleApplyCoupon}
+                              disabled={couponLoading}
+                            >
+                              {couponLoading
+                                ? <span className="spinner-border spinner-border-sm" />
+                                : <><i className="bi bi-ticket-perforated me-1"></i>Applica</>}
+                            </button>
+                          </div>
+                          {couponError && <small className="text-danger">{couponError}</small>}
+                        </div>
+                      )}
+                    </div>
+
+                    {coupon && couponDiscountAmount > 0 && (
+                      <div className="d-flex justify-content-between mb-2 text-success">
+                        <span><i className="bi bi-ticket-perforated-fill me-1"></i>Coupon {coupon.code}:</span>
+                        <span>-{couponDiscountAmount.toFixed(2)}€</span>
                       </div>
                     )}
 
@@ -152,7 +156,6 @@ const CartPage = () => {
                       <span className="h5 mb-0 text-success fw-bold">{finalPrice.toFixed(2)}€</span>
                     </div>
 
-                    {/* TODO #9: Stima tempo consegna dinamica */}
                     <div className="delivery-estimate mt-3 p-2 bg-light rounded">
                       <i className="bi bi-clock me-2 text-primary"></i>
                       <span className="text-muted">
@@ -167,19 +170,11 @@ const CartPage = () => {
             {totalQuantity > 0 && (
               <div className="card-footer bg-light">
                 <div className="d-flex justify-content-between">
-                  <button
-                    className="btn btn-outline-danger"
-                    onClick={handleResetCart}
-                  >
-                    <i className="bi bi-trash me-1"></i>
-                    Svuota Carrello
+                  <button className="btn btn-outline-danger" onClick={handleResetCart}>
+                    <i className="bi bi-trash me-1"></i>Svuota Carrello
                   </button>
-                  <button
-                    className="btn btn-success btn-lg btn-checkout"
-                    onClick={handleCheckout}
-                  >
-                    <i className="bi bi-check2-circle me-2"></i>
-                    Procedi al Checkout
+                  <button className="btn btn-success btn-lg btn-checkout" onClick={handleCheckout}>
+                    <i className="bi bi-check2-circle me-2"></i>Procedi al Checkout
                   </button>
                 </div>
               </div>
@@ -188,7 +183,6 @@ const CartPage = () => {
         </div>
       </div>
 
-      {/* TODO #7: Modale conferma svuota carrello */}
       {showConfirmModal && (
         <div className="confirm-modal-overlay" onClick={() => setShowConfirmModal(false)}>
           <div className="confirm-modal" onClick={e => e.stopPropagation()}>
@@ -201,18 +195,9 @@ const CartPage = () => {
               <p className="text-muted small">Questa azione rimuoverà tutti i {totalQuantity} prodotti.</p>
             </div>
             <div className="confirm-modal-footer">
-              <button
-                className="btn btn-outline-secondary"
-                onClick={() => setShowConfirmModal(false)}
-              >
-                Annulla
-              </button>
-              <button
-                className="btn btn-danger"
-                onClick={confirmResetCart}
-              >
-                <i className="bi bi-trash me-1"></i>
-                Svuota
+              <button className="btn btn-outline-secondary" onClick={() => setShowConfirmModal(false)}>Annulla</button>
+              <button className="btn btn-danger" onClick={confirmResetCart}>
+                <i className="bi bi-trash me-1"></i>Svuota
               </button>
             </div>
           </div>

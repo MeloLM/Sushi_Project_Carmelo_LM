@@ -1220,3 +1220,192 @@ body.dark-mode .breadcrumb-container .breadcrumb-item.active {
     margin: 10px;
   }
 }
+/* ===================== SPRINT 5: PRODUCT MODAL ===================== */
+.product-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1050;
+  padding: 1rem;
+  animation: fadeIn 0.2s ease;
+}
+
+.product-modal-content {
+  background: #fff;
+  border-radius: 16px;
+  max-width: 480px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+  animation: slideUp 0.25s ease;
+}
+
+body.dark-mode .product-modal-content {
+  background: #1e1e3a;
+  color: #e0e0e0;
+}
+
+.product-modal-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: rgba(0,0,0,0.15);
+  border: none;
+  border-radius: 50%;
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 1;
+  transition: background 0.2s;
+}
+.product-modal-close:hover { background: rgba(0,0,0,0.3); }
+
+.product-modal-img-wrapper {
+  width: 100%;
+  height: 220px;
+  overflow: hidden;
+  border-radius: 16px 16px 0 0;
+}
+.product-modal-img { width: 100%; height: 100%; object-fit: cover; }
+
+.product-modal-body { padding: 1.25rem; }
+.product-modal-title { font-size: 1.4rem; font-weight: 700; color: #1a1a2e; }
+body.dark-mode .product-modal-title { color: #fff; }
+.product-modal-price { font-size: 1.3rem; font-weight: 700; color: #28a745; }
+.product-modal-description { color: #666; margin-bottom: 0.75rem; }
+body.dark-mode .product-modal-description { color: #aaa; }
+
+.allergene-tag {
+  display: inline-block;
+  background: rgba(233, 69, 96, 0.1);
+  border: 1px solid rgba(233, 69, 96, 0.3);
+  border-radius: 20px;
+  padding: 2px 8px;
+  font-size: 0.75rem;
+  color: #e94560;
+}
+
+/* Star rating */
+.star-rating { display: flex; gap: 4px; }
+.star-btn {
+  background: none;
+  border: none;
+  font-size: 1.4rem;
+  color: #ccc;
+  cursor: pointer;
+  padding: 0;
+  transition: transform 0.1s, color 0.1s;
+}
+.star-btn.active { color: #FFD700; }
+.star-btn:hover:not(:disabled) { transform: scale(1.2); }
+.star-btn:disabled { cursor: default; }
+
+.star-display { display: inline-flex; gap: 2px; }
+
+.rating-form { background: rgba(0,0,0,0.03); border-radius: 10px; padding: 0.75rem; }
+body.dark-mode .rating-form { background: rgba(255,255,255,0.05); }
+
+@keyframes slideUp {
+  from { transform: translateY(30px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* ===================== SPRINT 5: ADVANCED FILTERS ===================== */
+.advanced-filters-panel {
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 12px;
+  padding: 0.75rem 1rem;
+}
+
+.price-range-slider {
+  -webkit-appearance: none;
+  width: 130px;
+  height: 4px;
+  border-radius: 2px;
+  background: #e94560;
+  outline: none;
+  cursor: pointer;
+}
+.price-range-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #fff;
+  border: 2px solid #e94560;
+  cursor: pointer;
+}
+
+.allergen-filter-pill {
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 20px;
+  color: #ccc;
+  padding: 2px 10px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.allergen-filter-pill:hover { background: rgba(233,69,96,0.15); border-color: #e94560; color: #e94560; }
+.allergen-filter-pill.active {
+  background: rgba(233,69,96,0.2);
+  border-color: #e94560;
+  color: #e94560;
+  font-weight: 600;
+}
+
+/* ===================== SPRINT 5: COUPON ===================== */
+.coupon-section {
+  border: 1px dashed rgba(0,0,0,0.15);
+  border-radius: 8px;
+  padding: 0.6rem 0.75rem;
+  background: rgba(0,0,0,0.02);
+}
+body.dark-mode .coupon-section { border-color: rgba(255,255,255,0.15); background: rgba(255,255,255,0.03); }
+
+.coupon-input { font-family: monospace; letter-spacing: 1px; text-transform: uppercase; }
+.coupon-applied {
+  background: rgba(40,167,69,0.1);
+  border-radius: 6px;
+  padding: 0.4rem 0.6rem;
+}
+
+/* ===================== SPRINT 5: SUSHI POINTS ===================== */
+.sushi-points-badge {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(255, 215, 0, 0.15);
+  border: 1px solid rgba(255, 215, 0, 0.4);
+  border-radius: 20px;
+  padding: 4px 10px;
+  font-size: 0.8rem;
+  color: #FFD700;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.points-value { font-size: 0.75rem; }
+
+.points-earned-banner {
+  background: linear-gradient(135deg, rgba(255,215,0,0.15), rgba(255,165,0,0.15));
+  border: 1px solid rgba(255,215,0,0.4);
+  border-radius: 10px;
+  padding: 0.6rem 1rem;
+  color: #b8860b;
+  font-size: 0.9rem;
+}
+body.dark-mode .points-earned-banner { color: #FFD700; }
+
+/* ===================== DARK MODE: NUOVI COMPONENTI ===================== */
+body.dark-mode .coupon-section { color: #e0e0e0; }
+body.dark-mode .allergen-filter-pill { color: #aaa; }
+body.dark-mode .advanced-filters-panel { background: rgba(0,0,0,0.2); border-color: rgba(255,255,255,0.1); }
