@@ -3,18 +3,11 @@ import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-route
 import './App.css';
 
 // Context Providers
-import { CartProvider } from './context/CartContext';
-import { ThemeProvider } from './context/ThemeContext';
+import { CartProvider, ThemeProvider } from './context';
 
 // Layout e Pagine
-import Layout from './components/Layout';
-import HomePage from './pages/HomePage';
-import CartPage from './pages/CartPage';
-import CheckoutPage from './pages/CheckoutPage';
-import NotFoundPage from './pages/NotFoundPage';
-
-// Componenti globali
-import ScrollToTop from './components/ScrollToTop';
+import { Layout, ScrollToTop } from './components';
+import { HomePage, CartPage, CheckoutPage, NotFoundPage } from './pages';
 
 /**
  * TODO #15: Hook per titoli pagina dinamici
@@ -24,12 +17,12 @@ const useDocumentTitle = () => {
 
   useEffect(() => {
     const titles = {
-      '/': '🍣 Sushi Project - Menu',
-      '/cart': '🛒 Carrello - Sushi Project',
-      '/checkout': '📦 Checkout - Sushi Project'
+      '/': 'Sushi Project - Menu',
+      '/cart': 'Carrello - Sushi Project',
+      '/checkout': 'Checkout - Sushi Project'
     };
 
-    document.title = titles[location.pathname] || '🍣 Sushi Project';
+    document.title = titles[location.pathname] || 'Sushi Project';
   }, [location]);
 };
 

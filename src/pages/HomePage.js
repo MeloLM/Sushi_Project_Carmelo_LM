@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import Card from '../components/Card';
-import Breadcrumb from '../components/Breadcrumb';
-import { useCartContext } from '../context/CartContext';
+import { Card, Breadcrumb } from '../components';
+import { useCartContext } from '../context';
 
 /**
  * TODO #4: Componente Skeleton per loading
@@ -111,21 +110,23 @@ const HomePage = () => {
       </div>
 
       {/* Filtri categoria + Favoriti */}
-      <div className="filter-container text-center my-4">
-        {categories.map(cat => (
-          <button
-            key={cat.key}
-            className={`filter-btn mx-1 ${activeFilter === cat.key ? 'active' : ''}`}
-            onClick={() => setActiveFilter(cat.key)}
-          >
-            <i className={`bi ${cat.icon} me-1`}></i>
-            {cat.label}
-          </button>
-        ))}
+      <div className="filter-container d-flex justify-content-between align-items-center flex-wrap my-4">
+        <div>
+          {categories.map(cat => (
+            <button
+              key={cat.key}
+              className={`filter-btn mx-1 ${activeFilter === cat.key ? 'active' : ''}`}
+              onClick={() => setActiveFilter(cat.key)}
+            >
+              <i className={`bi ${cat.icon} me-1`}></i>
+              {cat.label}
+            </button>
+          ))}
+        </div>
 
         {/* TODO #5: Bottone filtro favoriti */}
         <button
-          className={`filter-btn mx-1 filter-favorites ${showFavoritesOnly ? 'active' : ''}`}
+          className={`filter-btn ms-auto filter-favorites ${showFavoritesOnly ? 'active' : ''}`}
           onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
           title="Mostra solo preferiti"
         >

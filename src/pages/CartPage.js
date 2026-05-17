@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useCartContext } from '../context/CartContext';
-import Breadcrumb from '../components/Breadcrumb';
+import { useCartContext } from '../context';
+import { Breadcrumb } from '../components';
 
 /**
  * CartPage - Pagina carrello dedicata
@@ -175,7 +175,7 @@ const CartPage = () => {
                     Svuota Carrello
                   </button>
                   <button
-                    className="btn btn-success btn-lg"
+                    className="btn btn-success btn-lg btn-checkout"
                     onClick={handleCheckout}
                   >
                     <i className="bi bi-check2-circle me-2"></i>
