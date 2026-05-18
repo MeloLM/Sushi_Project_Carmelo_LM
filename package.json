@@ -1,11 +1,12 @@
 {
-  "name": "react_sushi",
+  "name": "zen-sushi",
   "version": "0.1.0",
   "private": true,
   "engines": {
     "node": ">=20.x"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.105.4",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",

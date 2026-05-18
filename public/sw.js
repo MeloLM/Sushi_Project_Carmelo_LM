@@ -1,5 +1,5 @@
-// Service Worker per Sushi Project PWA
-const CACHE_NAME = 'sushi-project-v1';
+// Service Worker per ZenSushi PWA
+const CACHE_NAME = 'zen-sushi-v1';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
@@ -102,7 +102,7 @@ self.addEventListener('push', (event) => {
   
   event.waitUntil(
     self.registration.showNotification(
-      data.title || 'Sushi Project',
+      data.title || 'ZenSushi',
       options
     )
   );

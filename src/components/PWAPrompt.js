@@ -31,7 +31,7 @@ const PWAPrompt = () => {
       {isInstallable && !isDismissed && (
         <div className="install-prompt">
           <div>
-            <strong>Installa Sushi Project</strong>
+            <strong>Installa ZenSushi</strong>
             <br />
             <small>Accedi rapidamente dal tuo dispositivo</small>
           </div>
