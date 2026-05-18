@@ -1,140 +1,128 @@
-# 📋 TODO - Sushi Project
+# 📋 sushi-project-tracker
 
-> Task organizzati per priorità e tipologia.
-
----
-
-## 📊 Legenda
-
-| 🔴 CRITICO | 🟠 ALTO | 🟡 MEDIO | 🟢 BASSO |
-|------------|---------|----------|----------|
+> **Stato Progetto**: 🔄 In corso (Fase 2 Completata)
+> **Versione Corrente**: 0.5.0 (Supabase Auth Integration)
+> **Prossimo Obiettivo**: Fase 3 – Prodotti da DB
 
 ---
 
-## 📈 Progresso Sprint 3
-
-```
-Completati: 8/8 ████████████████ 100% ✅
-```
+## 🗺️ Roadmap Backend: Supabase Integration
 
 ---
 
-## 🎯 SPRINT 3 - COMPLETATO! 🎉
+### Fase 1: Supabase Schema & Auth
+> **Stato**: 🔄 In corso
 
-### ⚡ Architettura & Infrastruttura
-
-| # | Priorità | Task | File | Status |
-|---|----------|------|------|--------|
-| 1 | 🔴 | **Custom hook useCart** - Estrarre logica carrello in hook dedicato | `src/hooks/useCart.js` | ✅ |
-| 2 | 🔴 | **Context API** - Gestione stato globale senza prop drilling | `src/context/CartContext.js`, `ThemeContext.js` | ✅ |
-| 3 | 🔴 | **React Router** - Navigazione `/`, `/cart`, `/checkout` | `App.js`, `src/pages/*` | ✅ |
-| 4 | 🟠 | **Pagina Checkout** - Form completo con validazione | `src/pages/CheckoutPage.js` | ✅ |
-| 5 | 🟠 | **Pagina Carrello** - Vista dedicata carrello | `src/pages/CartPage.js` | ✅ |
-
-### 🎨 UI/UX Miglioramenti
-
-| # | Priorità | Task | File | Status |
-|---|----------|------|------|--------|
-| 6 | 🟠 | **Dark Mode** - Toggle tema con persistenza localStorage | `ThemeContext.js`, `App.css`, `Navbar.js` | ✅ |
-| 7 | 🟡 | **Layout Component** - Wrapper con Navbar/Footer condivisi | `src/components/Layout.js` | ✅ |
-
-### 🛠️ PWA & Performance
-
-| # | Priorità | Task | File | Status |
-|---|----------|------|------|--------|
-| 8 | 🟡 | **PWA Base** - Service Worker, manifest, offline support | `public/sw.js`, `manifest.json`, `usePWA.js` | ✅ |
+- [ ] Eseguire `supabase_migration_01.sql` nel pannello SQL di Supabase (tabelle `profiles`, `products`, `orders`, `order_items`, `ratings`)
+- [x] Refactoring tabella `ratings`: FK verso `products.id` e `auth.users.id`, CHECK `stars` IN (1–5), RLS con lettura pubblica e write ristretta al proprietario
+- [x] Abilitare Supabase Auth (Email/Password provider) dal pannello Dashboard
+- [x] Configurare variabili d'ambiente: `REACT_APP_SUPABASE_URL` e `REACT_APP_SUPABASE_ANON_KEY` in `.env.local`
+- [x] Installare e configurare il client Supabase: `@supabase/supabase-js` v2
+- [x] Creare `src/lib/supabase.js` con il client inizializzato
+- [ ] Verificare RLS attivo su tutte le tabelle e testare le policy con un utente admin e uno normale
 
 ---
 
-## ✅ SPRINT 2 - COMPLETATO
+### Fase 2: Frontend Auth UI
+> **Stato**: ✅ Completata
 
-Tutti i 15 task del secondo sprint sono stati completati:
-- ✅ Conferma ordine con modale
-- ✅ Quantità max 99 per prodotto
-- ✅ Descrizioni e categorie prodotti
-- ✅ Filtro per categoria
-- ✅ Toast notifications
-- ✅ Animazioni quantità
-- ✅ Loader iniziale
-- ✅ Responsive cards
-- ✅ Footer migliorato
-- ✅ PropTypes su tutti i componenti
-- ✅ Lazy loading immagini
-- ✅ Meta tags SEO
+- [x] Creare `AuthContext.js` con `session`, `user`, `signIn`, `signUp`, `signOut`
+- [x] Creare pagina `LoginPage.js` (form email/password con spinner e gestione errori)
+- [x] Creare pagina `RegisterPage.js` (con validazione conferma password)
+- [x] Proteggere le route private con `ProtectedRoute` (`/checkout` richiede login)
+- [x] Mostrare username e tasto logout in `Navbar.js` se loggato, "Accedi" se anonimo
+- [x] Fix conflitto dark mode: rimossa logica duplicata da `CartContext`, ora gestita solo da `ThemeContext`
+- [x] Dark mode impostata come default all'avvio (senza persistenza localStorage)
+- [ ] Sostituire `device_id` locale con `auth.uid()` di Supabase ovunque nel codice
 
 ---
 
-## ✅ SPRINT 1 - COMPLETATO
+### Fase 3: CartContext Refactoring (Prodotti da DB)
+> **Stato**: ⏳ Futuro
 
-Tutti i 15 task del primo sprint sono stati completati:
-- ✅ Bug fixes (key, undefined, redundant code)
-- ✅ localStorage persistence
-- ✅ Sistema sconto progressivo
-- ✅ Svuota carrello
-- ✅ Badge totale pezzi
-- ✅ Scroll to footer
-- ✅ Estrazione prodotti in array
-- ✅ Alt text accessibilità
-- ✅ Estrazione stili CSS
-- ✅ ARIA labels
-- ✅ Hover effects
+- [ ] Creare hook `useProducts.js` che fetch i prodotti dalla tabella `products` via Supabase
+- [ ] Rimuovere i prodotti hardcoded da `CartContext.js`
+- [ ] Gestire loading/error state durante il fetch dei prodotti
+- [ ] Popolare la tabella `products` in Supabase con i dati attuali (migrazione dati)
+- [ ] Aggiungere immagini su Supabase Storage e aggiornare `image_url` nel DB
 
 ---
 
-## � PROSSIMI PASSI (In fase di definizione)
+### Fase 4: Orders & Admin Dashboard
+> **Stato**: ⏳ Futuro
 
-Stiamo valutando nuove funzionalità per il prossimo sprint. Le opzioni includono:
-- **Frontend Avanzato**: Dettaglio prodotti, filtri avanzati, coupon.
-- **Gamification**: Punti sushi, livelli utente, badge.
-- **Backend Reale**: Integrazione con database e API.
-
----
-
-## � Changelog
-
-### Sprint 4 (Completato) - Frontend UI/UX 🎉
-- **Nuove Funzionalità:**
-  - ✅ Pagina 404 animata
-  - ✅ Scroll to top
-  - ✅ Skeleton loading
-  - ✅ Sistema Favoriti (localStorage)
-  - ✅ Ricerca prodotti
-  - ✅ Modale conferma svuota carrello
-  - ✅ Stima consegna dinamica
-  - ✅ Breadcrumb navigation
-  - ✅ Footer social links
-  - ✅ Meta titoli dinamici
-- **UI Improvements:**
-  - ✅ Animazioni carrello e quantità
-  - ✅ Badge categoria emoji
-  - ✅ Icone allergeni
-  - ✅ Tooltip informativi
-
-### Sprint 3 (Completato) - Core Architecture
-- **Nuovi file creati:**
-  - `src/hooks/useCart.js` - Custom hook per logica carrello
-  - `src/hooks/usePWA.js` - Hook per funzionalità PWA
-  - `src/context/CartContext.js` - Context per stato globale carrello
-  - `src/context/ThemeContext.js` - Context per stato tema
-  - `src/pages/*` - Pagine Home, Cart, Checkout
-  - `src/components/Layout.js` - Layout wrapper
-- **Modifiche:**
-  - Refactor completo App.js
-  - Navbar migliorata
-  - PWA setup
-
-### Sprint 2 (Completato) - UI Components
-- Conferma ordine, Quantità max, Filtri categoria
-- Toast notifications, Loader
-- Responsive design, Lazy loading
-- SEO Optimization
-
-### Sprint 1 (Completato) - Foundation
-- Bug fixes, LocalStorage
-- Sconto progressivo
-- Struttura dati prodotti
-- CSS base e A11y
+- [ ] Al checkout, salvare l'ordine in `orders` e i dettagli in `order_items`
+- [ ] Creare pagina `OrderHistoryPage.js` per l'utente (lista ordini personali)
+- [ ] Creare pagina `AdminDashboardPage.js` (accessibile solo a `role = 'admin'`)
+- [ ] Admin: visualizzare tutti gli ordini con filtri per status
+- [ ] Admin: CRUD prodotti (aggiungere, modificare, disattivare piatti dal menu)
+- [ ] Implementare aggiornamento real-time degli ordini con Supabase Realtime
 
 ---
 
-*Ultimo aggiornamento: Fine Sprint 4*
+## 🛠️ Backlog Idee Future
+
+- [ ] **Multi-lingua**: Supporto i18n (IT/EN)
+- [ ] **Pagamenti Reali**: Integrazione Stripe/PayPal
+- [ ] **Notifiche Push**: Avvisi stato ordine
+- [ ] **App Mobile**: Versione React Native (futuro)
+
+---
+
+## 📜 Storico Sprint (Completati)
+
+<details open>
+<summary><b>🔐 Fase 2: Frontend Auth UI (Maggio 2026)</b></summary>
+<br>
+
+**7/8 Task Completati** ✅
+- **AuthContext**: Session management con Supabase `onAuthStateChange`
+- **LoginPage / RegisterPage**: Form con validazione, spinner, redirect automatico
+- **ProtectedRoute**: HOC per proteggere `/checkout`
+- **Navbar**: Auth dinamica (username + logout / "Accedi")
+- **Fix**: Conflitto dark mode tra `CartContext` e `ThemeContext` risolto
+- **Fix**: Dark mode impostata come default all'avvio
+
+</details>
+
+<details>
+<summary><b>🚀 Sprint 4: Frontend UX/UI (Gennaio 2026)</b></summary>
+<br>
+
+**15/15 Task Completati** ✅
+- **Pages**: `NotFoundPage` (404), `HomePage` (Search, Skeleton), `CartPage` (Confirm Modal)
+- **Features**: Sistema Favoriti ❤️, Stima Consegna ⏱️, Breadcrumbs 🗺️
+- **UI**: Animazioni CSS ✨, ScrollToTop ⬆️, Tooltips 💡, Badge Categoria 🏷️
+- **Data**: Allergeni 🦐, Meta Titles dinamici 📝
+
+</details>
+
+<details>
+<summary><b>⚡ Sprint 3: Core Architecture</b></summary>
+
+- **Refactor**: Context API per Cart e Theme
+- **Routing**: Setup React Router base
+- **PWA**: Service Worker e installazione
+- **Structure**: Hooks custom (`useCart`, `usePWA`)
+
+</details>
+
+<details>
+<summary><b>🎨 Sprint 2: UI Components</b></summary>
+
+- Responsive Design
+- Toast Notifications
+- Loader iniziale
+- Footer e Navbar migliorati
+
+</details>
+
+<details>
+<summary><b>🧱 Sprint 1: Foundation</b></summary>
+
+- Setup progetto React
+- Logica base carrello
+- LocalStorage persistence
+- Styling base Bootstrap
+
+</details>

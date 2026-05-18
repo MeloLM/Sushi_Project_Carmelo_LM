@@ -3,32 +3,28 @@ import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-route
 import './App.css';
 
 // Context Providers
-import { CartProvider, ThemeProvider } from './context';
+import { CartProvider, ThemeProvider, AuthProvider } from './context';
 
 // Layout e Pagine
-import { Layout, ScrollToTop } from './components';
-import { HomePage, CartPage, CheckoutPage, NotFoundPage } from './pages';
+import { Layout, ScrollToTop, ProtectedRoute } from './components';
+import { HomePage, CartPage, CheckoutPage, LoginPage, RegisterPage, NotFoundPage } from './pages';
 
-/**
- * TODO #15: Hook per titoli pagina dinamici
- */
 const useDocumentTitle = () => {
   const location = useLocation();
 
   useEffect(() => {
     const titles = {
-      '/': 'Sushi Project - Menu',
-      '/cart': 'Carrello - Sushi Project',
-      '/checkout': 'Checkout - Sushi Project'
+      '/': 'ZenSushi - Menu',
+      '/cart': 'Carrello - ZenSushi',
+      '/checkout': 'Checkout - ZenSushi',
+      '/login': 'Accedi - ZenSushi',
+      '/register': 'Registrati - ZenSushi',
     };
 
-    document.title = titles[location.pathname] || 'Sushi Project';
+    document.title = titles[location.pathname] || 'ZenSushi';
   }, [location]);
 };
 
-/**
- * AppContent - Contenuto principale con hook location-dipendenti
- */
 const AppContent = () => {
   useDocumentTitle();
 
@@ -38,12 +34,12 @@ const AppContent = () => {
         <Route path="/" element={<Layout />}>
           <Route index element={<HomePage />} />
           <Route path="cart" element={<CartPage />} />
-          <Route path="checkout" element={<CheckoutPage />} />
-          {/* TODO #1: Pagina 404 per route inesistenti */}
+          <Route path="checkout" element={<ProtectedRoute><CheckoutPage /></ProtectedRoute>} />
+          <Route path="login" element={<LoginPage />} />
+          <Route path="register" element={<RegisterPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Route>
       </Routes>
-      {/* TODO #3: Bottone scroll to top */}
       <ScrollToTop />
     </>
   );
@@ -52,7 +48,6 @@ const AppContent = () => {
 const App = () => {
   const [isLoading, setIsLoading] = useState(true);
 
-  // Simula caricamento iniziale
   useEffect(() => {
     const timer = setTimeout(() => setIsLoading(false), 800);
     return () => clearTimeout(timer);
@@ -69,11 +64,13 @@ const App = () => {
 
   return (
     <ThemeProvider>
-      <CartProvider>
-        <Router>
-          <AppContent />
-        </Router>
-      </CartProvider>
+      <AuthProvider>
+        <CartProvider>
+          <Router>
+            <AppContent />
+          </Router>
+        </CartProvider>
+      </AuthProvider>
     </ThemeProvider>
   );
 };

@@ -33,10 +33,6 @@ export const useCartContext = () => {
 
 export const CartProvider = ({ children }) => {
   const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
-  const [darkMode, setDarkMode] = useState(() => {
-    const saved = localStorage.getItem('darkMode');
-    return saved ? JSON.parse(saved) : false;
-  });
   const [favorites, setFavorites] = useState(() => {
     try { return JSON.parse(localStorage.getItem(FAVORITES_KEY) || '[]'); }
     catch { return []; }
@@ -59,10 +55,6 @@ export const CartProvider = ({ children }) => {
   const { points: sushiPoints, totalOrders, addPoints, level: sushiLevel } = useSushiPoints();
 
   React.useEffect(() => { localStorage.setItem(STORAGE_KEY, JSON.stringify(cards)); }, [cards]);
-  React.useEffect(() => {
-    localStorage.setItem('darkMode', JSON.stringify(darkMode));
-    document.body.classList.toggle('dark-mode', darkMode);
-  }, [darkMode]);
   React.useEffect(() => { localStorage.setItem(FAVORITES_KEY, JSON.stringify(favorites)); }, [favorites]);
 
   const showToast = useCallback((message, type = 'success') => {
@@ -79,7 +71,6 @@ export const CartProvider = ({ children }) => {
   }, [showToast]);
 
   const isFavorite = useCallback((productId) => favorites.includes(productId), [favorites]);
-  const toggleDarkMode = useCallback(() => setDarkMode(prev => !prev), []);
 
   const incrementItem = useCallback((card) => {
     if (card.quantita >= MAX_QUANTITY) { showToast(`Massimo ${MAX_QUANTITY} pezzi!`, 'warning'); return; }
@@ -143,7 +134,6 @@ export const CartProvider = ({ children }) => {
     finalPrice,
     maxQuantity: MAX_QUANTITY,
     toast, showToast,
-    darkMode, toggleDarkMode,
     sushiPoints, totalOrders, addPoints, sushiLevel,
   };
 

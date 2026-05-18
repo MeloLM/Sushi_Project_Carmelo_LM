@@ -1,164 +1,161 @@
 # 🍣 Sushi Project
 
-> Applicazione web React per la visualizzazione e selezione di sushi roll con carrello integrato.
+> **Experience the art of Sushi ordering.**
+> Una Single Page Application (SPA) moderna, reattiva e progressiva (PWA) per ordinare il tuo sushi preferito.
 
 [![React](https://img.shields.io/badge/React-18.2.0-61DAFB?logo=react)](https://reactjs.org/)
+[![Supabase](https://img.shields.io/badge/Supabase-Auth%20%2B%20DB-3ECF8E?logo=supabase)](https://supabase.com/)
 [![Bootstrap](https://img.shields.io/badge/Bootstrap-5.2.3-7952B3?logo=bootstrap)](https://getbootstrap.com/)
-[![License](https://img.shields.io/badge/License-Educational-green)]()
+[![PWA](https://img.shields.io/badge/PWA-Ready-purple?logo=pwa)](https://web.dev/progressive-web-apps/)
+[![License](https://img.shields.io/badge/License-MIT-green)]()
 
 ---
 
-## 📋 Descrizione
+## 🌟 Highlights
 
-**Sushi Project** è una Single Page Application (SPA) che simula un menu digitale per un ristorante di sushi. Gli utenti possono sfogliare il catalogo prodotti, aggiungere/rimuovere elementi dal carrello e visualizzare il totale dell'ordine in tempo reale.
+- **🔐 Autenticazione Reale**: Login e registrazione con Supabase Auth (email/password). Route protette e session management.
+- **📱 Progressive Web App (PWA)**: Installabile su desktop e mobile, funziona anche offline.
+- **🎨 Modern UI/UX**: Design responsivo, Dark Mode predefinita, animazioni fluide e skeleton loading.
+- **🛒 Smart Cart**: Persistenza dati, calcolo sconti automatici, stima consegna e gestione favoriti ❤️.
+- **⚡ Performance**: Lazy loading, ottimizzazione immagini e codice modulare.
 
-### Obiettivo di Business
-Fornire un'interfaccia utente intuitiva per la consultazione del menu e la composizione di ordini sushi, con calcolo automatico dei totali.
+---
+
+## 📸 Screenshots
+
+| Desktop Home | Dark Mode | Mobile PWA |
+|--------------|-----------|------------|
+| ![Desktop](https://placehold.co/600x400?text=Home+Page+Preview) | ![Dark Mode](https://placehold.co/600x400/1a1a2e/FFF?text=Dark+Mode+Preview) | ![Mobile](https://placehold.co/300x500?text=Mobile+View) |
+
+---
+
+## ✨ Funzionalità
+
+### 🔐 Autenticazione
+- **Login / Registrazione**: Form con validazione, feedback errori e spinner di caricamento.
+- **Session Management**: Stato utente globale via `AuthContext`, sincronizzato con Supabase.
+- **Route Protette**: `/checkout` accessibile solo agli utenti autenticati (`ProtectedRoute`).
+- **Navbar Dinamica**: Mostra username e tasto logout se loggato, tasto "Accedi" se anonimo.
+
+### 🛍️ Esperienza d'Acquisto
+- **Catalogo Ricco**: Filtri per categoria (Roll, Nigiri, Special) e ricerca testuale istantanea.
+- **Dettagli Prodotto**: Icone allergeni (🦐, 🥜, 🥛) per ogni piatto.
+- **Carrello Avanzato**: Modifica quantità, rimuovi item, svuota tutto (con conferma di sicurezza).
+
+### ⚙️ Core Features
+- **Routing**: Navigazione SPA fluida (`/`, `/cart`, `/checkout`, `/login`, `/register`) con React Router.
+- **State Management**: Gestione globale tramite Context API (`AuthContext`, `CartContext`, `ThemeContext`).
+- **Persistenza**: Carrello e preferiti salvati in `localStorage`.
+- **Feedback Utente**: Toast notifications, tooltip informativi e pagina 404 personalizzata.
 
 ---
 
 ## 🛠️ Tech Stack
 
-| Tecnologia | Versione | Scopo |
-|------------|----------|-------|
-| **React** | 18.2.0 | Framework UI / State Management |
-| **React Bootstrap** | 2.7.3 | Componenti UI pre-costruiti |
-| **Bootstrap** | 5.2.3 | Sistema di grid e styling |
-| **Bootstrap Icons** | 1.10.4 | Icone vettoriali |
-| **Create React App** | 5.0.1 | Toolchain di build |
-
----
-
-## ⚙️ Prerequisiti
-
-Prima di iniziare, assicurati di avere installato:
-
-- **Node.js** >= 14.x ([Download](https://nodejs.org/))
-- **npm** >= 6.x (incluso con Node.js)
-
-Verifica l'installazione:
-```bash
-node -v
-npm -v
-```
+| Area | Tecnologia |
+|------|------------|
+| **Frontend Core** | React 18, Hooks (Custom & Built-in) |
+| **State** | React Context API (`AuthContext`, `CartContext`, `ThemeContext`) |
+| **Backend / Auth** | Supabase (Auth, PostgreSQL, RLS) |
+| **Styling** | Bootstrap 5, CSS3 Custom Properties |
+| **Routing** | React Router DOM v7 |
+| **PWA** | Service Worker, Manifest.json |
+| **Icons** | Bootstrap Icons |
 
 ---
 
 ## 🚀 Installazione & Avvio
 
-### 1. Clona il repository
+### Prerequisiti
+- Node.js >= 14
+- npm >= 6
+- Account Supabase (gratuito)
+
+### Quick Start
 ```bash
+# 1. Clona il repository
 git clone https://github.com/MeloLM/Sushi_Project_Carmelo_LM.git
+
+# 2. Entra nella cartella
 cd Sushi_Project_Carmelo_LM-main
-```
 
-### 2. Installa le dipendenze
-```bash
+# 3. Installa le dipendenze
 npm install
-```
 
-### 3. Avvia il server di sviluppo
-```bash
+# 4. Configura le variabili d'ambiente
+cp .env.example .env.local
+# → inserisci REACT_APP_SUPABASE_URL e REACT_APP_SUPABASE_ANON_KEY
+
+# 5. Esegui la migrazione DB (una volta sola)
+# → copia supabase_migration_01.sql nel pannello SQL di Supabase ed eseguilo
+
+# 6. Avvia l'app
 npm start
 ```
 
-### 4. Apri nel browser
-```
-http://localhost:3000
-```
-
-### Build per Produzione
-```bash
-npm run build
-```
-L'output ottimizzato sarà nella cartella `/build`.
-
-### Esegui i Test
-```bash
-npm test
-```
-
----
-
-## ✨ Feature Principali
-
-### Implementate ✅
-- **Catalogo Prodotti**: Visualizzazione di 6 tipi di sushi roll con immagine, nome e prezzo
-- **Gestione Quantità**: Pulsanti +/- per incrementare o decrementare la quantità per prodotto
-- **Carrello Modale**: Riepilogo ordine con lista prodotti selezionati
-- **Calcolo Totali**: Calcolo automatico del totale pezzi e prezzo complessivo
-- **UI Responsive**: Layout adattivo con Bootstrap grid system
-- **Background Immersivo**: Sfondo fotografico a tema sushi
-
-### Prodotti Disponibili
-| Roll | Prezzo |
-|------|--------|
-| California | €2.50 |
-| Dragon | €4.20 |
-| Dynamite | €2.10 |
-| Whitey | €1.50 |
-| Rainbow | €3.40 |
-| Fungi | €2.80 |
-
-### Placeholder (Non Funzionali) ⚠️
-- Form feedback nel footer (UI presente, invio non implementato)
-- Bottone "Contact" nella navbar (solo UI)
-- Sistema sconto progressivo (codice commentato nel sorgente)
+L'app sarà disponibile su `http://localhost:3000`.
 
 ---
 
 ## 📁 Struttura Progetto
 
 ```
-Sushi_Project_Carmelo_LM-main/
-├── public/
-│   ├── index.html          # Template HTML
-│   ├── manifest.json       # Config PWA
-│   └── robots.txt          # SEO config
-├── src/
-│   ├── App.js              # Componente root + state management
-│   ├── App.css             # Stili globali
-│   ├── index.js            # Entry point React
-│   ├── index.css           # Stili base
-│   ├── components/
-│   │   ├── Card.js         # Card singolo prodotto
-│   │   ├── Cart.js         # Modale carrello
-│   │   ├── Navbar.js       # Barra navigazione
-│   │   └── Footer.js       # Footer con form
-│   └── images/             # Assets grafici
-├── package.json
-├── README.md
-└── ARCHITECTURE.md         # 📖 Documentazione tecnica dettagliata
+src/
+├── components/
+│   ├── Navbar.js          # Navbar con auth dinamica (login/logout)
+│   ├── ProtectedRoute.js  # HOC per route protette
+│   └── ...                # Card, Footer, Layout, ecc.
+├── context/
+│   ├── AuthContext.js     # Sessione utente Supabase
+│   ├── CartContext.js     # Stato carrello e prodotti
+│   └── ThemeContext.js    # Dark/Light mode
+├── hooks/                 # Custom Hooks (useSushiPoints, useRatings, ecc.)
+├── lib/
+│   └── supabase.js        # Client Supabase inizializzato
+├── pages/
+│   ├── LoginPage.js       # Pagina accesso
+│   ├── RegisterPage.js    # Pagina registrazione
+│   └── ...                # Home, Cart, Checkout, 404
+├── App.js                 # Main Entry, Routing & Providers
+└── App.css                # Global Styling & Animations
 ```
-
-> 📖 **Per sviluppatori:** Consulta [ARCHITECTURE.md](./ARCHITECTURE.md) per dettagli su pattern, flusso dati e guida alle modifiche.
 
 ---
 
-## 🔮 Roadmap (Sviluppi Futuri)
+## 🗄️ Database (Supabase)
 
-- [ ] Persistenza carrello con localStorage
-- [ ] Sistema sconto progressivo (5% ogni 10 pezzi, max 50%)
-- [ ] Form feedback funzionale (integrazione EmailJS)
-- [ ] Routing multi-pagina con React Router
-- [ ] Autenticazione utenti
-- [ ] Backend con database
+Schema PostgreSQL con Row Level Security attivo su tutte le tabelle:
+
+| Tabella | Descrizione |
+|---------|-------------|
+| `profiles` | Estende `auth.users` con campo `role` (user/admin) |
+| `products` | Catalogo prodotti del menu |
+| `orders` | Ordini con status (`pending` → `delivered`) |
+| `order_items` | Righe di dettaglio per ogni ordine |
+| `ratings` | Recensioni prodotti (lettura pubblica, scrittura autenticata) |
+
+---
+
+## 🗺️ Roadmap
+
+> Vedi [TODO.md](./TODO.md) per il dettaglio completo dei task.
+
+| Sprint | Stato | Focus |
+|--------|-------|-------|
+| Sprint 1-4 | ✅ Completato | Foundation, UI, PWA, UX |
+| Fase 1 – Schema & Auth | 🔄 In corso | Supabase DB, RLS, Auth setup |
+| Fase 2 – Auth UI | ✅ Completato | Login, Register, ProtectedRoute, Navbar |
+| Fase 3 – Prodotti da DB | ⏳ Prossimo | CartContext refactor, fetch prodotti |
+| Fase 4 – Orders & Admin | ⏳ Futuro | Storico ordini, Admin Dashboard |
 
 ---
 
 ## 👤 Autore
 
-**Carmelo La Mantia**  
-- 📧 Email: carmelo.la.mantia00@gmail.com  
+**Carmelo La Mantia**
 - 🐙 GitHub: [@MeloLM](https://github.com/MeloLM)
+- 📧 Email: carmelo.la.mantia00@gmail.com
 
 ---
 
-## 📄 Licenza
-
-Progetto a scopo educativo/portfolio.  
-Per utilizzo commerciale, contattare l'autore.
-
----
-
-*Ultimo aggiornamento: Gennaio 2026*
+Made with ❤️ and 🍣 by Carmelo.

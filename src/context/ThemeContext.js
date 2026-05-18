@@ -12,19 +12,9 @@ export const useTheme = () => {
 };
 
 export const ThemeProvider = ({ children }) => {
-  const [darkMode, setDarkMode] = useState(() => {
-    const saved = localStorage.getItem('sushi-dark-mode');
-    if (saved !== null) {
-      return JSON.parse(saved);
-    }
-    // Controlla preferenza sistema
-    return window.matchMedia('(prefers-color-scheme: dark)').matches;
-  });
+  const [darkMode, setDarkMode] = useState(true);
 
   useEffect(() => {
-    localStorage.setItem('sushi-dark-mode', JSON.stringify(darkMode));
-    
-    // Applica classe al body
     if (darkMode) {
       document.body.classList.add('dark-mode');
       document.documentElement.setAttribute('data-theme', 'dark');
@@ -38,21 +28,12 @@ export const ThemeProvider = ({ children }) => {
     setDarkMode(prev => !prev);
   }, []);
 
-  const value = {
-    darkMode,
-    toggleDarkMode,
-    theme: darkMode ? 'dark' : 'light'
-  };
-
   return (
-    <ThemeContext.Provider value={value}>
+    <ThemeContext.Provider value={{ darkMode, toggleDarkMode, theme: darkMode ? 'dark' : 'light' }}>
       {children}
     </ThemeContext.Provider>
   );
 };
 
-ThemeProvider.propTypes = {
-  children: PropTypes.node.isRequired
-};
-
+ThemeProvider.propTypes = { children: PropTypes.node.isRequired };
 export default ThemeContext;

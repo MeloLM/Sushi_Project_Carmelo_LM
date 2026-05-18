@@ -1,16 +1,24 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import logo from '../images/sushi.png';
 import { useTheme } from '../context/ThemeContext';
 import { useCartContext } from '../context/CartContext';
+import { useAuth } from '../context/AuthContext';
 
-function Navbar({ logoSrc = null, title = 'Sushi Project' }) {
+function Navbar({ logoSrc = null, title = 'ZenSushi' }) {
   const location = useLocation();
+  const navigate = useNavigate();
   const { darkMode, toggleDarkMode } = useTheme();
   const { totalQuantity, sushiPoints, sushiLevel } = useCartContext();
+  const { user, signOut } = useAuth();
 
   const scrollToFooter = () => document.querySelector('footer')?.scrollIntoView({ behavior: 'smooth' });
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/');
+  };
 
   return (
     <nav className="navbar navbar-dark bg-transparent" role="navigation" aria-label="Main navigation">
@@ -27,6 +35,33 @@ function Navbar({ logoSrc = null, title = 'Sushi Project' }) {
               <span>{sushiLevel.emoji}</span>
               <span className="points-value">{sushiPoints} pt</span>
             </div>
+          )}
+
+          {/* Auth Section */}
+          {user ? (
+            <>
+              <span className="text-white small d-none d-md-inline" title={user.email}>
+                <i className="bi bi-person-circle me-1"></i>
+                {user.email.split('@')[0]}
+              </span>
+              <button
+                className="btn btn-outline-light btn-sm"
+                onClick={handleSignOut}
+                aria-label="Esci dall'account"
+                title="Esci"
+              >
+                <i className="bi bi-box-arrow-right"></i>
+              </button>
+            </>
+          ) : (
+            <Link
+              to="/login"
+              className="btn btn-outline-light btn-sm"
+              aria-label="Accedi"
+            >
+              <i className="bi bi-person me-1"></i>
+              <span className="d-none d-md-inline">Accedi</span>
+            </Link>
           )}
 
           <button

@@ -3,6 +3,7 @@ export { default as Card } from './Card';
 export { default as Footer } from './Footer';
 export { default as Layout } from './Layout';
 export { default as Navbar } from './Navbar';
+export { default as ProtectedRoute } from './ProtectedRoute';
 export { default as PWAPrompt } from './PWAPrompt';
 export { default as ProductModal } from './ProductModal';
 export { default as ScrollToTop } from './ScrollToTop';
