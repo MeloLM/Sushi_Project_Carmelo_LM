@@ -27,23 +27,16 @@ const MIN_PRICE = 1;
 const MAX_PRICE = 5;
 
 const HomePage = () => {
-  const { cards, incrementItem, decrementItem, maxQuantity, toggleFavorite, isFavorite } = useCartContext();
+  const { cards, incrementItem, decrementItem, maxQuantity, toggleFavorite, isFavorite, isLoading } = useCartContext();
   const allRatings = useAllRatings();
 
   const [activeFilter, setActiveFilter] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
   const [selectedProduct, setSelectedProduct] = useState(null);
 
-  // Filtri avanzati
   const [maxPriceFilter, setMaxPriceFilter] = useState(MAX_PRICE);
   const [excludedAllergeni, setExcludedAllergeni] = useState([]);
-
-  React.useEffect(() => {
-    const timer = setTimeout(() => setIsLoading(false), 500);
-    return () => clearTimeout(timer);
-  }, []);
 
   const categories = [
     { key: 'all', label: 'Tutti', icon: 'bi-grid-3x3-gap' },
@@ -110,7 +103,6 @@ const HomePage = () => {
             {activeFiltersCount > 0 && <span className="badge bg-danger ms-1">{activeFiltersCount}</span>}
           </span>
 
-          {/* Range prezzo */}
           <div className="d-flex align-items-center gap-2 ms-2">
             <small className="text-white-50">Prezzo max:</small>
             <input
@@ -131,7 +123,6 @@ const HomePage = () => {
           </div>
         </div>
 
-        {/* Allergeni da evitare */}
         <div className="d-flex align-items-center gap-1 flex-wrap">
           <small className="text-white-50 me-1">Escludi allergeni:</small>
           {ALL_ALLERGENI.map(a => (

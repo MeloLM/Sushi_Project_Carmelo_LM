@@ -1,8 +1,8 @@
 # 📋 sushi-project-tracker
 
-> **Stato Progetto**: 🔄 In corso (Fase 2 Completata)
-> **Versione Corrente**: 0.5.0 (Supabase Auth Integration)
-> **Prossimo Obiettivo**: Fase 3 – Prodotti da DB
+> **Stato Progetto**: 🔄 In corso (Fase 3 iniziata)
+> **Versione Corrente**: 0.6.0 (Data-Driven Products)
+> **Prossimo Obiettivo**: Popolare tabella `products` su Supabase
 
 ---
 
@@ -11,39 +11,39 @@
 ---
 
 ### Fase 1: Supabase Schema & Auth
-> **Stato**: 🔄 In corso
+> **Stato**: ✅ Completata
 
-- [ ] Eseguire `supabase_migration_01.sql` nel pannello SQL di Supabase (tabelle `profiles`, `products`, `orders`, `order_items`, `ratings`)
-- [x] Refactoring tabella `ratings`: FK verso `products.id` e `auth.users.id`, CHECK `stars` IN (1–5), RLS con lettura pubblica e write ristretta al proprietario
-- [x] Abilitare Supabase Auth (Email/Password provider) dal pannello Dashboard
-- [x] Configurare variabili d'ambiente: `REACT_APP_SUPABASE_URL` e `REACT_APP_SUPABASE_ANON_KEY` in `.env.local`
-- [x] Installare e configurare il client Supabase: `@supabase/supabase-js` v2
-- [x] Creare `src/lib/supabase.js` con il client inizializzato
-- [ ] Verificare RLS attivo su tutte le tabelle e testare le policy con un utente admin e uno normale
+- [x] Eseguire `supabase_migration_01.sql` nel pannello SQL di Supabase
+- [x] Refactoring tabella `ratings`: FK verso `products.id` e `auth.users.id`, RLS completo
+- [x] Abilitare Supabase Auth (Email/Password provider)
+- [x] Configurare variabili d'ambiente su `.env.local` e Vercel
+- [x] `@supabase/supabase-js` v2 installato e configurato
+- [x] `src/lib/supabase.js` creato con il client inizializzato
+- [x] RLS verificato e attivo su tutte le tabelle
 
 ---
 
 ### Fase 2: Frontend Auth UI
 > **Stato**: ✅ Completata
 
-- [x] Creare `AuthContext.js` con `session`, `user`, `signIn`, `signUp`, `signOut`
-- [x] Creare pagina `LoginPage.js` (form email/password con spinner e gestione errori)
-- [x] Creare pagina `RegisterPage.js` (con validazione conferma password)
-- [x] Proteggere le route private con `ProtectedRoute` (`/checkout` richiede login)
-- [x] Mostrare username e tasto logout in `Navbar.js` se loggato, "Accedi" se anonimo
-- [x] Fix conflitto dark mode: rimossa logica duplicata da `CartContext`, ora gestita solo da `ThemeContext`
-- [x] Dark mode impostata come default all'avvio (senza persistenza localStorage)
-- [ ] Sostituire `device_id` locale con `auth.uid()` di Supabase ovunque nel codice
+- [x] `AuthContext.js` con `session`, `user`, `signIn`, `signUp`, `signOut`
+- [x] `LoginPage.js` — form email/password con spinner e gestione errori
+- [x] `RegisterPage.js` — con validazione conferma password
+- [x] `ProtectedRoute.js` — `/checkout` richiede autenticazione
+- [x] `Navbar.js` — username + logout se loggato, "Accedi" se anonimo
+- [x] Fix dark mode: rimossa logica duplicata da `CartContext`
+- [x] Dark mode come default all'avvio (senza persistenza localStorage)
 
 ---
 
 ### Fase 3: CartContext Refactoring (Prodotti da DB)
-> **Stato**: ⏳ Futuro
+> **Stato**: 🔄 In corso
 
-- [ ] Creare hook `useProducts.js` che fetch i prodotti dalla tabella `products` via Supabase
-- [ ] Rimuovere i prodotti hardcoded da `CartContext.js`
-- [ ] Gestire loading/error state durante il fetch dei prodotti
-- [ ] Popolare la tabella `products` in Supabase con i dati attuali (migrazione dati)
+- [x] Creare `src/hooks/useProducts.js` — fetch da Supabase con fallback locale
+- [x] Refactoring `CartContext.js` — `quantities` map al posto di array con quantità embedded
+- [x] `HomePage.js` — `isLoading` reale da Supabase (rimosso fake timer), skeleton loading integrato
+- [x] Skeleton loading durante il fetch dei prodotti (no flickering, no blank screen)
+- [ ] **Popolare la tabella `products`** su Supabase con i 6 prodotti attuali
 - [ ] Aggiungere immagini su Supabase Storage e aggiornare `image_url` nel DB
 
 ---
@@ -53,10 +53,10 @@
 
 - [ ] Al checkout, salvare l'ordine in `orders` e i dettagli in `order_items`
 - [ ] Creare pagina `OrderHistoryPage.js` per l'utente (lista ordini personali)
-- [ ] Creare pagina `AdminDashboardPage.js` (accessibile solo a `role = 'admin'`)
+- [ ] Creare pagina `AdminDashboardPage.js` (solo `role = 'admin'`)
 - [ ] Admin: visualizzare tutti gli ordini con filtri per status
-- [ ] Admin: CRUD prodotti (aggiungere, modificare, disattivare piatti dal menu)
-- [ ] Implementare aggiornamento real-time degli ordini con Supabase Realtime
+- [ ] Admin: CRUD prodotti dal pannello
+- [ ] Supabase Realtime per aggiornamenti ordine live
 
 ---
 
@@ -65,23 +65,31 @@
 - [ ] **Multi-lingua**: Supporto i18n (IT/EN)
 - [ ] **Pagamenti Reali**: Integrazione Stripe/PayPal
 - [ ] **Notifiche Push**: Avvisi stato ordine
-- [ ] **App Mobile**: Versione React Native (futuro)
+- [ ] **App Mobile**: Versione React Native
 
 ---
 
 ## 📜 Storico Sprint (Completati)
 
-<details open>
+<details>
+<summary><b>🛒 Fase 3: Data-Driven Products (Maggio 2026)</b></summary>
+<br>
+
+**3/5 Task Completati** 🔄
+- **useProducts.js**: fetch da Supabase, fallback automatico ai prodotti locali se tabella vuota
+- **CartContext refactor**: stato carrello ora è una `quantities` map `{[id]: qty}` — più leggero e corretto
+- **HomePage**: `isLoading` reale da Supabase, rimosso il fake timer da 500ms
+
+</details>
+
+<details>
 <summary><b>🔐 Fase 2: Frontend Auth UI (Maggio 2026)</b></summary>
 <br>
 
-**7/8 Task Completati** ✅
-- **AuthContext**: Session management con Supabase `onAuthStateChange`
-- **LoginPage / RegisterPage**: Form con validazione, spinner, redirect automatico
-- **ProtectedRoute**: HOC per proteggere `/checkout`
-- **Navbar**: Auth dinamica (username + logout / "Accedi")
-- **Fix**: Conflitto dark mode tra `CartContext` e `ThemeContext` risolto
-- **Fix**: Dark mode impostata come default all'avvio
+**8/8 Task Completati** ✅
+- AuthContext, LoginPage, RegisterPage, ProtectedRoute
+- Navbar auth dinamica
+- Fix dark mode conflict (CartContext vs ThemeContext)
 
 </details>
 
@@ -90,39 +98,28 @@
 <br>
 
 **15/15 Task Completati** ✅
-- **Pages**: `NotFoundPage` (404), `HomePage` (Search, Skeleton), `CartPage` (Confirm Modal)
-- **Features**: Sistema Favoriti ❤️, Stima Consegna ⏱️, Breadcrumbs 🗺️
-- **UI**: Animazioni CSS ✨, ScrollToTop ⬆️, Tooltips 💡, Badge Categoria 🏷️
-- **Data**: Allergeni 🦐, Meta Titles dinamici 📝
+- NotFoundPage, HomePage search+skeleton, CartPage confirm modal
+- Favoriti, stima consegna, breadcrumbs, animazioni, tooltips, allergeni
 
 </details>
 
 <details>
 <summary><b>⚡ Sprint 3: Core Architecture</b></summary>
 
-- **Refactor**: Context API per Cart e Theme
-- **Routing**: Setup React Router base
-- **PWA**: Service Worker e installazione
-- **Structure**: Hooks custom (`useCart`, `usePWA`)
+- Context API, React Router, PWA Service Worker, custom hooks
 
 </details>
 
 <details>
 <summary><b>🎨 Sprint 2: UI Components</b></summary>
 
-- Responsive Design
-- Toast Notifications
-- Loader iniziale
-- Footer e Navbar migliorati
+- Responsive design, Toast, Loader, Footer, Navbar
 
 </details>
 
 <details>
 <summary><b>🧱 Sprint 1: Foundation</b></summary>
 
-- Setup progetto React
-- Logica base carrello
-- LocalStorage persistence
-- Styling base Bootstrap
+- Setup React, logica carrello, localStorage, styling base
 
 </details>
