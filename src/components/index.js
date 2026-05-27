@@ -1,4 +1,5 @@
 export { default as Breadcrumb } from './Breadcrumb';
+export { default as PartyBoxConfigurator } from './PartyBoxConfigurator';
 export { default as Card } from './Card';
 export { default as Footer } from './Footer';
 export { default as Layout } from './Layout';

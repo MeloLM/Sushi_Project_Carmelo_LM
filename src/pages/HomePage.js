@@ -68,6 +68,41 @@ const HomePage = () => {
     <div className="container min-vh-100 py-4">
       <Breadcrumb />
 
+      {/* ── Hero: Party Box Builder CTA ─────────────────────────────────────── */}
+      <div className="p-4 p-md-5 mb-5 rounded-3 bg-dark border border-warning border-opacity-50">
+        <div className="row align-items-center g-4">
+          <div className="col-md-8">
+            <h2 className="fw-bold text-white mb-2">
+              Costruisci la tua{' '}
+              <span className="text-warning">Party Box</span> 🎊
+            </h2>
+            <p className="text-muted mb-3">
+              Personalizza il tuo assortimento di sushi per feste e occasioni speciali.
+              Scegli tra 3 taglie, componi le porzioni liberamente — il prezzo è fisso.
+            </p>
+            <div className="d-flex flex-wrap gap-3">
+              <Link
+                to="/box-builder"
+                className="btn btn-warning btn-lg fw-semibold"
+                aria-label="Crea il tuo Party Box personalizzato"
+              >
+                <i className="bi bi-box-seam-fill me-2" aria-hidden="true"></i>
+                Crea il tuo Party Box
+              </Link>
+              <span className="d-flex align-items-center gap-3">
+                <span className="text-muted small">📦 20 pz · €25</span>
+                <span className="text-muted small">🎁 50 pz · €55</span>
+                <span className="text-muted small">🎊 80 pz · €85</span>
+              </span>
+            </div>
+          </div>
+          <div className="col-md-4 text-center d-none d-md-block">
+            <span style={{ fontSize: '5rem' }} aria-hidden="true">🍱</span>
+          </div>
+        </div>
+      </div>
+
+      {/* ── A la Carte ─────────────────────────────────────────────────────── */}
       <div className="d-flex justify-content-center align-items-center flex-wrap mb-4">
         <h1 className="text-center text-white me-4">Cosa desideri ordinare?</h1>
         <Link to="/cart" className="btn btn-secondary cart-button">

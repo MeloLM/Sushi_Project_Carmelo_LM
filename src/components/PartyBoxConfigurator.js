@@ -45,8 +45,22 @@ const ITEMS = [
 
 // Contenitori disponibili — prezzi e capienza massima sono dati di business fissi.
 const BOX_OPTIONS = [
-  { id: 'small',  label: 'Piccola', maxPieces: 20, price: 25 },
-  { id: 'medium', label: 'Media',   maxPieces: 50, price: 55 },
+  {
+    id: 'small', label: 'Piccola', maxPieces: 20, price: 25, emoji: '📦',
+    tagline: 'Perfetta per 1-2 persone',
+    features: ['20 pezzi totali', 'Ideale per aperitivo', 'Consegna rapida'],
+  },
+  {
+    id: 'medium', label: 'Media', maxPieces: 50, price: 55, emoji: '🎁',
+    tagline: 'La scelta più popolare',
+    features: ['50 pezzi totali', 'Per 3-4 persone', 'Mix uramaki + nigiri'],
+    recommended: true,
+  },
+  {
+    id: 'large', label: 'Grande', maxPieces: 80, price: 85, emoji: '🎊',
+    tagline: 'Per feste e occasioni speciali',
+    features: ['80 pezzi totali', 'Per 5+ persone', 'Massima libertà di scelta'],
+  },
 ];
 
 // SVG placeholder inline codificato come data-URI: nessun asset aggiuntivo,
@@ -171,30 +185,40 @@ PieceCard.displayName = 'PieceCard';
 
 // ─── Componente Principale ────────────────────────────────────────────────────
 //
-// Dipendenze da CartContext:
-//   - showToast(message, type)  — feedback visivo (già presente nel Context)
-//   - addPartyBox(payload)      — da aggiungere al CartContext (vedi commento ADD_TO_CART)
+// Flusso a due step gestito tramite stato locale `step` (1 | 2):
+//   Step 1 — Selezione taglia: 3 pricing card Bootstrap affiancate
+//   Step 2 — Composizione:     griglia PieceCard con progress bar e riepilogo
 //
-// State locale:
-//   - selectedBoxId   'small' | 'medium' | null    — contenitore scelto
-//   - portions        { [itemId]: portionCount }    — contatori porzioni
+// Dipendenze da CartContext:
+//   - showToast(message, type)  — già presente nel Context
+//   - addPartyBox(payload)      — da aggiungere al CartProvider
 
 const PartyBoxConfigurator = () => {
   const { showToast, addPartyBox } = useCartContext();
 
-  const [selectedBoxId, setSelectedBoxId] = useState(null);
-  const [portions, setPortions]           = useState({});
+  // step: 1 = selezione taglia | 2 = composizione
+  const [step, setStep]               = useState(1);
+  const [selectedBox, setSelectedBox] = useState(null);   // oggetto BOX_OPTIONS
+  const [portions, setPortions]       = useState({});     // { [itemId]: portionCount }
 
-  // ─── Selezione box ───────────────────────────────────────────────────────
-  // Al cambio di box si azzerano le porzioni: evita stati inconsistenti
-  // (es. 3 porzioni da 8pz in una box da 20pz).
-  const handleSelectBox = useCallback((boxId) => {
-    setSelectedBoxId(boxId);
+  // ─── Navigazione tra gli step ────────────────────────────────────────────
+
+  // Step 1 → 2: salva la box scelta e azzera le porzioni
+  const handleSelectBox = useCallback((box) => {
+    setSelectedBox(box);
+    setPortions({});
+    setStep(2);
+  }, []);
+
+  // Step 2 → 1: torna indietro e resetta tutto
+  const handleBack = useCallback(() => {
+    setStep(1);
+    setSelectedBox(null);
     setPortions({});
   }, []);
 
-  // ─── Handlers counter ────────────────────────────────────────────────────
-  // useCallback con deps vuote: referenze stabili → React.memo su PieceCard è efficace.
+  // ─── Handlers counter porzioni ───────────────────────────────────────────
+
   const handleIncrement = useCallback((itemId) => {
     setPortions(prev => ({ ...prev, [itemId]: (prev[itemId] || 0) + 1 }));
   }, []);
@@ -204,7 +228,6 @@ const PartyBoxConfigurator = () => {
       const current = prev[itemId] || 0;
       if (current <= 0) return prev;
       if (current === 1) {
-        // Rimuove la chiave invece di lasciare { itemId: 0 } — stato pulito.
         const { [itemId]: _drop, ...rest } = prev;
         return rest;
       }
@@ -212,15 +235,7 @@ const PartyBoxConfigurator = () => {
     });
   }, []);
 
-  // ─── Stato derivato (useMemo) ────────────────────────────────────────────
-  //
-  // Un unico useMemo calcola tutto ciò che dipende da `portions` + `selectedBox`,
-  // evitando calcoli ridondanti e creando un unico punto di verità per i valori derivati.
-
-  const selectedBox = useMemo(
-    () => BOX_OPTIONS.find(b => b.id === selectedBoxId) || null,
-    [selectedBoxId]
-  );
+  // ─── Stato derivato ───────────────────────────────────────────────────────
 
   const { currentTotalPieces, fillPercent, selections, canAddMap } = useMemo(() => {
     let currentTotalPieces = 0;
@@ -232,22 +247,15 @@ const PartyBoxConfigurator = () => {
         const totalPieces = count * item.piecesPerPortion;
         currentTotalPieces += totalPieces;
         selections.push({
-          productId:        item.id,
-          productName:      item.name,
-          type:             item.type,
-          portionCount:     count,
-          piecesPerPortion: item.piecesPerPortion,
-          totalPieces,
+          productId: item.id, productName: item.name, type: item.type,
+          portionCount: count, piecesPerPortion: item.piecesPerPortion, totalPieces,
         });
       }
     });
 
-    const maxPieces = selectedBox?.maxPieces ?? 0;
+    const maxPieces   = selectedBox?.maxPieces ?? 0;
     const fillPercent = maxPieces > 0 ? Math.min((currentTotalPieces / maxPieces) * 100, 100) : 0;
 
-    // Mappa booleana "questa card può ancora aggiungere una porzione?".
-    // Passata come prop a ciascuna PieceCard: quando il totale cambia,
-    // ogni card riceve un nuovo valore e React.memo decide se ri-renderizzare.
     const canAddMap = ITEMS.reduce((acc, item) => {
       acc[item.id] = !!selectedBox && (currentTotalPieces + item.piecesPerPortion <= maxPieces);
       return acc;
@@ -256,228 +264,263 @@ const PartyBoxConfigurator = () => {
     return { currentTotalPieces, fillPercent, selections, canAddMap };
   }, [portions, selectedBox]);
 
-  // La box è pronta quando è completamente piena (currentTotalPieces === maxBoxPieces).
   const isBoxFull  = !!selectedBox && currentTotalPieces === selectedBox.maxPieces;
   const isBoxEmpty = currentTotalPieces === 0;
 
-  // Colore della progress bar in base al riempimento:
-  // 0-49% → info, 50-84% → warning, 85-99% → danger, 100% → success
   const progressColor =
-    fillPercent === 100   ? 'bg-success'
-    : fillPercent >= 85   ? 'bg-danger'
-    : fillPercent >= 50   ? 'bg-warning'
+    fillPercent === 100 ? 'bg-success'
+    : fillPercent >= 85 ? 'bg-danger'
+    : fillPercent >= 50 ? 'bg-warning'
     : 'bg-info';
 
   // ─── Aggiunta al carrello ────────────────────────────────────────────────
-  //
-  // ADD_TO_CART: il payload è strutturato per il reducer del CartContext.
-  // `addPartyBox` deve essere aggiunta al CartProvider con la seguente logica:
-  //
-  //   const addPartyBox = useCallback((payload) => {
-  //     dispatchCustomBox({ type: 'ADD', payload });
-  //   }, []);
-  //
-  // La funzione viene poi esposta nel `value` del CartContext.
-  // Il `cartItemId` è generato QUI con crypto.randomUUID() perché è un
-  // identificatore di "slot carrello", non un ID di business del prodotto.
 
   const handleAddToCart = useCallback(() => {
     if (!isBoxFull || !selectedBox) return;
 
     const payload = {
-      cartItemId: crypto.randomUUID(),        // univoco per ogni box aggiunta
-      boxType:    selectedBox.id,             // 'small' | 'medium'
+      cartItemId: crypto.randomUUID(),
+      boxType:    selectedBox.id,
       name:       `Box ${selectedBox.label} Personalizzata`,
-      price:      selectedBox.price,          // prezzo fisso del contenitore
+      price:      selectedBox.price,
       maxPieces:  selectedBox.maxPieces,
-      selections,                             // porzioni scelte (qty > 0)
+      selections,
     };
 
-    // Chiama addPartyBox esposta dal CartContext
     addPartyBox(payload);
-
-    // Reset UI — le selezioni tornano a zero, il tipo di box resta scelto
     setPortions({});
+    setStep(1);
+    setSelectedBox(null);
     showToast(`"${payload.name}" aggiunta al carrello! 🎉`, 'success');
   }, [isBoxFull, selectedBox, selections, addPartyBox, showToast]);
 
   // ─── Rendering ───────────────────────────────────────────────────────────
 
   return (
-    <div className="card bg-dark text-white border-warning" aria-label="Configuratore Party Box">
+    <div className="card bg-dark text-white border-warning" aria-label="Party Box Configurator">
 
-      {/* ── Header ── */}
+      {/* ── Header comune ai due step ── */}
       <div className="card-header border-warning py-3">
-        <div className="d-flex align-items-center gap-2 mb-1">
-          <i className="bi bi-box-seam-fill text-warning fs-4" aria-hidden="true"></i>
-          <h5 className="mb-0">Party Box Personalizzabile</h5>
+        <div className="d-flex align-items-center justify-content-between">
+          <div className="d-flex align-items-center gap-2">
+            <i className="bi bi-box-seam-fill text-warning fs-4" aria-hidden="true"></i>
+            <div>
+              <h5 className="mb-0">Party Box Personalizzabile</h5>
+              <small className="text-muted">
+                {step === 1
+                  ? 'Scegli la taglia del tuo box'
+                  : `Box ${selectedBox.label} · ${selectedBox.maxPieces} pz · €${selectedBox.price}`}
+              </small>
+            </div>
+          </div>
+
+          {/* Breadcrumb step — visuale */}
+          <div className="d-flex align-items-center gap-1" aria-label="Progresso configurazione">
+            <span className={`badge rounded-pill ${step >= 1 ? 'bg-warning text-dark' : 'bg-secondary'}`}>
+              1 Taglia
+            </span>
+            <i className="bi bi-chevron-right text-muted small" aria-hidden="true"></i>
+            <span className={`badge rounded-pill ${step === 2 ? 'bg-warning text-dark' : 'bg-secondary'}`}>
+              2 Porzioni
+            </span>
+          </div>
         </div>
-        <small className="text-muted">
-          Scegli il contenitore, poi riempilo con le tue porzioni preferite.
-        </small>
       </div>
 
       <div className="card-body">
 
-        {/* ── Step 1: Scelta del contenitore ── */}
-        <section aria-labelledby="box-step-label" className="mb-4">
-          <p id="box-step-label" className="text-warning fw-semibold small mb-2">
-            <span className="badge bg-warning text-dark me-2">1</span>
-            Scegli il contenitore
-          </p>
-          <div className="d-flex gap-3 flex-wrap">
+        {/* ════════════════════════════════════════════════════════════════
+            STEP 1 — Selezione della taglia (Pricing Cards Bootstrap 5)
+            ════════════════════════════════════════════════════════════════ */}
+        {step === 1 && (
+          <div className="row row-cols-1 row-cols-md-3 g-4" role="list" aria-label="Opzioni box">
             {BOX_OPTIONS.map(box => (
-              <button
-                key={box.id}
-                className={`btn flex-grow-1 py-3 border-2 fw-semibold transition-all
-                  ${selectedBoxId === box.id
-                    ? 'btn-warning text-dark'
-                    : 'btn-outline-warning text-white'}`}
-                onClick={() => handleSelectBox(box.id)}
-                aria-pressed={selectedBoxId === box.id}
-              >
-                <div className="fs-5">
-                  {box.id === 'small' ? '📦' : '🎁'} Box {box.label}
+              <div key={box.id} className="col" role="listitem">
+                <div
+                  className={`card h-100 bg-dark border-2 text-white position-relative
+                    ${box.recommended ? 'border-warning' : 'border-secondary'}`}
+                >
+                  {/* Badge "Più scelto" */}
+                  {box.recommended && (
+                    <span
+                      className="position-absolute top-0 start-50 translate-middle badge bg-warning text-dark px-3"
+                      style={{ fontSize: '0.75rem' }}
+                    >
+                      ⭐ Più scelto
+                    </span>
+                  )}
+
+                  <div className={`card-header text-center border-0 pt-4 pb-2 ${box.recommended ? 'bg-warning bg-opacity-10' : ''}`}>
+                    <div style={{ fontSize: '2.5rem' }} aria-hidden="true">{box.emoji}</div>
+                    <h4 className="fw-bold text-white mt-1">Box {box.label}</h4>
+                    <p className="text-muted small mb-0">{box.tagline}</p>
+                  </div>
+
+                  <div className="card-body text-center">
+                    {/* Prezzo */}
+                    <div className="mb-3">
+                      <span className="display-5 fw-bold text-warning">€{box.price}</span>
+                      <span className="text-muted small d-block">prezzo fisso</span>
+                    </div>
+
+                    {/* Feature list */}
+                    <ul className="list-unstyled text-start mb-0">
+                      {box.features.map((f, i) => (
+                        <li key={i} className="mb-2 d-flex align-items-center gap-2">
+                          <i className="bi bi-check-circle-fill text-warning flex-shrink-0" aria-hidden="true"></i>
+                          <span className="small">{f}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  <div className="card-footer border-0 pb-4 bg-transparent text-center">
+                    <button
+                      className={`btn w-100 fw-semibold ${box.recommended ? 'btn-warning' : 'btn-outline-warning'}`}
+                      onClick={() => handleSelectBox(box)}
+                      aria-label={`Scegli Box ${box.label}: ${box.maxPieces} pezzi a €${box.price}`}
+                    >
+                      Scegli questa Box
+                      <i className="bi bi-arrow-right ms-2" aria-hidden="true"></i>
+                    </button>
+                  </div>
                 </div>
-                <div className="small fw-normal mt-1">
-                  Max <strong>{box.maxPieces} pz</strong> · <strong>€{box.price}.00</strong>
-                </div>
-              </button>
-            ))}
-          </div>
-        </section>
-
-        {/* ── Progress bar capienza ── */}
-        {selectedBox && (
-          <section aria-label="Capienza box" className="mb-4">
-            <div className="d-flex justify-content-between align-items-baseline mb-1">
-              <small className="text-muted">Capienza box</small>
-              <small className={`fw-bold ${isBoxFull ? 'text-success' : 'text-warning'}`}
-                aria-live="polite"
-                aria-atomic="true"
-              >
-                {currentTotalPieces} / {selectedBox.maxPieces} pz
-                {isBoxFull && (
-                  <span className="ms-1">
-                    <i className="bi bi-check-circle-fill text-success"></i> Piena!
-                  </span>
-                )}
-              </small>
-            </div>
-            <div
-              className="progress bg-secondary"
-              style={{ height: 12, borderRadius: 6 }}
-              role="progressbar"
-              aria-valuenow={currentTotalPieces}
-              aria-valuemin={0}
-              aria-valuemax={selectedBox.maxPieces}
-              aria-label={`Box riempita al ${Math.round(fillPercent)}%`}
-            >
-              <div
-                className={`progress-bar ${progressColor} ${fillPercent < 100 ? 'progress-bar-striped progress-bar-animated' : ''}`}
-                style={{ width: `${fillPercent}%`, transition: 'width 0.3s ease' }}
-              />
-            </div>
-            {/* Pezzi rimanenti */}
-            {!isBoxEmpty && !isBoxFull && (
-              <small className="text-muted mt-1 d-block">
-                Ancora{' '}
-                <strong className="text-warning">
-                  {selectedBox.maxPieces - currentTotalPieces} pz
-                </strong>{' '}
-                per completare la box.
-              </small>
-            )}
-          </section>
-        )}
-
-        {/* ── Step 2: Griglia prodotti ── */}
-        <section aria-labelledby="items-step-label">
-          <p id="items-step-label" className="text-warning fw-semibold small mb-3">
-            <span className="badge bg-warning text-dark me-2">2</span>
-            Scegli le porzioni
-            {!selectedBox && (
-              <span className="text-muted fw-normal ms-2">— seleziona prima un contenitore</span>
-            )}
-          </p>
-
-          <div
-            className="row row-cols-1 row-cols-sm-2 row-cols-lg-4 g-3"
-            role="list"
-            aria-label="Prodotti disponibili per il box"
-          >
-            {ITEMS.map(item => (
-              <div key={item.id} className="col" role="listitem">
-                <PieceCard
-                  item={item}
-                  portionCount={portions[item.id] || 0}
-                  // canAdd è pre-calcolato nel parent: evita di ricomputare
-                  // `currentTotalPieces + piecesPerPortion` dentro ogni card.
-                  canAdd={canAddMap[item.id] ?? false}
-                  onIncrement={handleIncrement}
-                  onDecrement={handleDecrement}
-                />
               </div>
             ))}
           </div>
-        </section>
+        )}
 
-        {/* ── Riepilogo selezioni (visibile solo se ci sono porzioni) ── */}
-        {!isBoxEmpty && (
-          <div
-            className={`mt-4 p-3 rounded border ${isBoxFull ? 'border-success bg-success bg-opacity-10' : 'border-warning bg-warning bg-opacity-10'}`}
-            role="region"
-            aria-label="Riepilogo selezioni"
-            aria-live="polite"
-          >
-            <p className={`small fw-semibold mb-2 ${isBoxFull ? 'text-success' : 'text-warning'}`}>
-              <i className="bi bi-receipt me-1" aria-hidden="true"></i>
-              Composizione box
-            </p>
-            <ul className="list-unstyled mb-2">
-              {selections.map(s => (
-                <li key={s.productId} className="d-flex justify-content-between small text-white-50 mb-1">
-                  <span>
-                    {s.portionCount}× {s.productName}
-                    <span className="text-muted ms-1">
-                      ({s.portionCount} porz. · {s.totalPieces} pz)
+        {/* ════════════════════════════════════════════════════════════════
+            STEP 2 — Composizione delle porzioni
+            ════════════════════════════════════════════════════════════════ */}
+        {step === 2 && (
+          <>
+            {/* ── Progress bar capienza ── */}
+            <section aria-label="Capienza box" className="mb-4">
+              <div className="d-flex justify-content-between align-items-baseline mb-1">
+                <small className="text-muted">Capienza utilizzata</small>
+                <small
+                  className={`fw-bold ${isBoxFull ? 'text-success' : 'text-warning'}`}
+                  aria-live="polite"
+                  aria-atomic="true"
+                >
+                  {currentTotalPieces} / {selectedBox.maxPieces} pz
+                  {isBoxFull && (
+                    <span className="ms-1">
+                      <i className="bi bi-check-circle-fill"></i> Box piena!
                     </span>
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </div>
+                  )}
+                </small>
+              </div>
+              <div
+                className="progress bg-secondary"
+                style={{ height: 12, borderRadius: 6 }}
+                role="progressbar"
+                aria-valuenow={currentTotalPieces}
+                aria-valuemin={0}
+                aria-valuemax={selectedBox.maxPieces}
+                aria-label={`Box riempita al ${Math.round(fillPercent)}%`}
+              >
+                <div
+                  className={`progress-bar ${progressColor} ${fillPercent < 100 ? 'progress-bar-striped progress-bar-animated' : ''}`}
+                  style={{ width: `${fillPercent}%`, transition: 'width 0.3s ease' }}
+                />
+              </div>
+              {!isBoxEmpty && !isBoxFull && (
+                <small className="text-muted mt-1 d-block">
+                  Ancora{' '}
+                  <strong className="text-warning">
+                    {selectedBox.maxPieces - currentTotalPieces} pz
+                  </strong>{' '}
+                  per completare la box.
+                </small>
+              )}
+            </section>
+
+            {/* ── Griglia PieceCard ── */}
+            <section aria-label="Scegli le porzioni" className="mb-4">
+              <div
+                className="row row-cols-1 row-cols-sm-2 row-cols-lg-4 g-3"
+                role="list"
+                aria-label="Prodotti disponibili"
+              >
+                {ITEMS.map(item => (
+                  <div key={item.id} className="col" role="listitem">
+                    <PieceCard
+                      item={item}
+                      portionCount={portions[item.id] || 0}
+                      canAdd={canAddMap[item.id] ?? false}
+                      onIncrement={handleIncrement}
+                      onDecrement={handleDecrement}
+                    />
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            {/* ── Riepilogo composizione ── */}
+            {!isBoxEmpty && (
+              <div
+                className={`p-3 rounded border ${isBoxFull ? 'border-success bg-success bg-opacity-10' : 'border-warning bg-warning bg-opacity-10'}`}
+                role="region"
+                aria-label="Riepilogo selezioni"
+                aria-live="polite"
+              >
+                <p className={`small fw-semibold mb-2 ${isBoxFull ? 'text-success' : 'text-warning'}`}>
+                  <i className="bi bi-receipt me-1" aria-hidden="true"></i>
+                  Composizione box
+                </p>
+                <ul className="list-unstyled mb-0">
+                  {selections.map(s => (
+                    <li key={s.productId} className="d-flex justify-content-between small text-white-50 mb-1">
+                      <span>{s.portionCount}× {s.productName}</span>
+                      <span className="text-muted">{s.totalPieces} pz</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </>
         )}
       </div>
 
       {/* ── Footer / CTA ── */}
       <div className="card-footer border-warning py-3">
-        {/* Mostra il prezzo del contenitore e i pezzi mancanti */}
-        {selectedBox && !isBoxFull && (
-          <p className="text-muted small text-center mb-2">
-            {isBoxEmpty
-              ? `Seleziona le porzioni per riempire la Box ${selectedBox.label} (${selectedBox.maxPieces} pz · €${selectedBox.price})`
-              : `Mancano ancora ${selectedBox.maxPieces - currentTotalPieces} pz per completare la box.`}
+        {step === 1 ? (
+          <p className="text-muted small text-center mb-0">
+            <i className="bi bi-info-circle me-1"></i>
+            Seleziona una taglia per iniziare a comporre il tuo box.
           </p>
-        )}
+        ) : (
+          <div className="d-flex gap-2">
+            {/* Bottone Indietro */}
+            <button
+              className="btn btn-outline-secondary"
+              onClick={handleBack}
+              aria-label="Torna alla selezione della taglia"
+            >
+              <i className="bi bi-arrow-left me-1" aria-hidden="true"></i>
+              Indietro
+            </button>
 
-        <button
-          className={`btn w-100 fw-semibold py-2 ${isBoxFull ? 'btn-success' : 'btn-outline-secondary'}`}
-          onClick={handleAddToCart}
-          disabled={!isBoxFull}
-          aria-disabled={!isBoxFull}
-        >
-          {isBoxFull ? (
-            <>
-              <i className="bi bi-cart-plus me-2" aria-hidden="true"></i>
-              Aggiungi Box al Carrello — €{selectedBox.price}.00
-            </>
-          ) : !selectedBox ? (
-            'Scegli prima un contenitore'
-          ) : (
-            `Riempi la box (${currentTotalPieces}/${selectedBox.maxPieces} pz)`
-          )}
-        </button>
+            {/* CTA Aggiungi al carrello — attivo SOLO quando box è esattamente piena */}
+            <button
+              className={`btn fw-semibold flex-grow-1 ${isBoxFull ? 'btn-success' : 'btn-outline-secondary'}`}
+              onClick={handleAddToCart}
+              disabled={!isBoxFull}
+              aria-disabled={!isBoxFull}
+            >
+              {isBoxFull ? (
+                <>
+                  <i className="bi bi-cart-plus me-2" aria-hidden="true"></i>
+                  Aggiungi Box al Carrello — €{selectedBox.price}.00
+                </>
+              ) : (
+                `Riempi la box (${currentTotalPieces}/${selectedBox.maxPieces} pz)`
+              )}
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
