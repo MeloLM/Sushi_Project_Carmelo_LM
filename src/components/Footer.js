@@ -10,7 +10,6 @@ function Footer({
     githubUrl = 'https://github.com/MeloLM',
     instagramUrl = 'https://instagram.com',
     facebookUrl = 'https://facebook.com',
-    twitterUrl = 'https://twitter.com'
 }) {
     const [feedbackSent, setFeedbackSent] = useState(false);
     const [inputValue, setInputValue] = useState('');
@@ -99,17 +98,7 @@ function Footer({
                             title="Facebook"
                         >
                             <i className="bi bi-facebook"></i>
-                        </a>
-                        <a
-                            href={twitterUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="social-link twitter"
-                            aria-label="Seguici su Twitter"
-                            title="Twitter"
-                        >
-                            <i className="bi bi-twitter-x"></i>
-                        </a>
+                        </a>                       
                         <a
                             href={githubUrl}
                             target="_blank"

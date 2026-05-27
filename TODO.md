@@ -1,6 +1,6 @@
 # 📋 sushi-project-tracker
 
-> **Stato Progetto**: 🔄 In corso (Fase 3 iniziata)
+> **Stato Progetto**: 🔄 In corso (Sprint 3 iniziato)
 > **Versione Corrente**: 0.6.0 (Data-Driven Products)
 > **Prossimo Obiettivo**: Popolare tabella `products` su Supabase
 
@@ -10,7 +10,7 @@
 
 ---
 
-### Fase 1: Supabase Schema & Auth
+### Sprint 1: Supabase Schema & Auth
 > **Stato**: ✅ Completata
 
 - [x] Eseguire `supabase_migration_01.sql` nel pannello SQL di Supabase
@@ -23,7 +23,7 @@
 
 ---
 
-### Fase 2: Frontend Auth UI
+### Sprint 2: Frontend Auth UI
 > **Stato**: ✅ Completata
 
 - [x] `AuthContext.js` con `session`, `user`, `signIn`, `signUp`, `signOut`
@@ -36,7 +36,7 @@
 
 ---
 
-### Fase 3: CartContext Refactoring (Prodotti da DB)
+### Sprint 3: CartContext Refactoring (Prodotti da DB)
 > **Stato**: 🔄 In corso
 
 - [x] Creare `src/hooks/useProducts.js` — fetch da Supabase con fallback locale
@@ -48,7 +48,7 @@
 
 ---
 
-### Fase 4: Orders & Admin Dashboard
+### Sprint 4: Orders & Admin Dashboard
 > **Stato**: ⏳ Futuro
 
 - [ ] Al checkout, salvare l'ordine in `orders` e i dettagli in `order_items`
@@ -69,10 +69,19 @@
 
 ---
 
+## 🔬 Sprint 5 — Funzionalità Avanzate e Ottimizzazioni *(Idee in valutazione)*
+
+- [ ] **Tracking dell'Ordine in Tempo Reale**: Utilizzare Supabase Realtime (WebSocket) per sottoscriversi ai cambiamenti di stato sulla tabella `orders` e aggiornare la UI lato utente senza polling.
+- [ ] **Supporto PWA Offline Avanzato**: Implementare IndexedDB (tramite `idb` o Workbox) per persistere il menù e il carrello offline, con strategia di sincronizzazione ottimistica alla riconnessione.
+- [ ] **Code Splitting & Lazy Loading**: Ridurre il bundle iniziale e migliorare FCP tramite `React.lazy` + `<Suspense>` sulle route di React Router v7 (`HomePage`, `CheckoutPage`, `AdminDashboardPage`).
+- [ ] **Ottimizzazione Immagini on-the-fly**: Sfruttare le Image Transformations di Supabase Storage per servire automaticamente file WebP ridimensionati e compressi dal CDN (`?width=400&quality=80&format=webp`).
+
+---
+
 ## 📜 Storico Sprint (Completati)
 
 <details>
-<summary><b>🛒 Fase 3: Data-Driven Products (Maggio 2026)</b></summary>
+<summary><b>🛒 Sprint 3: Data-Driven Products (Maggio 2026)</b></summary>
 <br>
 
 **3/5 Task Completati** 🔄
@@ -83,7 +92,7 @@
 </details>
 
 <details>
-<summary><b>🔐 Fase 2: Frontend Auth UI (Maggio 2026)</b></summary>
+<summary><b>🔐 Sprint 2: Frontend Auth UI (Maggio 2026)</b></summary>
 <br>
 
 **8/8 Task Completati** ✅
