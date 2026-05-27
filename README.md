@@ -1,73 +1,140 @@
-# ZenSushi — Premium React & Supabase E-Commerce Web App
+# 🍣 ZenSushi
 
-> A production-ready, full-stack food ordering SPA built with React 18, Supabase Auth, PostgreSQL with Row-Level Security, and deployed on Vercel.
+> **Order smarter. Taste better.** — A full-stack food ordering SPA + PWA built with React 18, Supabase, and Bootstrap 5. From à-la-carte browsing to fully custom Party Box configurations, all under an elegant dark-mode UI.
 
-[![React](https://img.shields.io/badge/React-18.2-61DAFB?logo=react&logoColor=white)](https://reactjs.org/)
-[![Supabase](https://img.shields.io/badge/Supabase-Auth%20%2B%20DB-3ECF8E?logo=supabase&logoColor=white)](https://supabase.com/)
-[![Vercel](https://img.shields.io/badge/Vercel-Deployed-black?logo=vercel)](https://vercel.com/)
-[![Bootstrap](https://img.shields.io/badge/Bootstrap-5.2-7952B3?logo=bootstrap&logoColor=white)](https://getbootstrap.com/)
-[![PWA](https://img.shields.io/badge/PWA-Ready-5A0FC8?logo=pwa)](https://web.dev/progressive-web-apps/)
-[![License](https://img.shields.io/badge/License-MIT-22c55e)](LICENSE)
-
----
-
-## What is ZenSushi?
-
-ZenSushi is a **complete, scalable e-commerce web application** for food ordering. It combines a polished consumer-facing UI with a secure backend architecture — ready to extend, white-label, or deploy commercially.
-
-Built as a showcase of modern full-stack React development, the project covers the full product lifecycle: browsing, filtering, cart management, authenticated checkout, order tracking, and admin control — all backed by a production-grade Supabase database with Row-Level Security.
+[![Version](https://img.shields.io/badge/version-0.6.0-ffc107?style=flat-square)](CHANGELOG.md)
+[![React](https://img.shields.io/badge/React-18-61DAFB?style=flat-square&logo=react&logoColor=white)](https://reactjs.org/)
+[![React Router](https://img.shields.io/badge/React_Router-v7-CA4245?style=flat-square&logo=reactrouter&logoColor=white)](https://reactrouter.com/)
+[![Bootstrap](https://img.shields.io/badge/Bootstrap-5-7952B3?style=flat-square&logo=bootstrap&logoColor=white)](https://getbootstrap.com/)
+[![Supabase](https://img.shields.io/badge/Supabase-Auth_+_DB_+_Storage-3ECF8E?style=flat-square&logo=supabase&logoColor=white)](https://supabase.com/)
+[![Vercel](https://img.shields.io/badge/Vercel-Deployed-000000?style=flat-square&logo=vercel)](https://vercel.com/)
+[![PWA](https://img.shields.io/badge/PWA-Ready-5A0FC8?style=flat-square&logo=pwa)](https://web.dev/progressive-web-apps/)
+[![License](https://img.shields.io/badge/License-MIT-22c55e?style=flat-square)](LICENSE)
 
 ---
 
-## Features
+## 📌 Overview
 
-### Security & Authentication
-- **Supabase Auth** — Email/password signup and login with session persistence
-- **Row-Level Security (RLS)** — PostgreSQL-level access control on all 5 tables
-- **Role-based access** — `user` and `admin` roles with policy enforcement
-- **Protected Routes** — Checkout requires authentication via `ProtectedRoute` HOC
+**ZenSushi** is a production-ready, full-stack ordering platform for a sushi delivery brand. The app covers the full customer journey — from browsing the menu and managing a cart to configuring bespoke Party Boxes and completing a secure, authenticated checkout.
 
-### Shopping Experience
-- **Live Product Catalog** — Products fetched from Supabase with graceful local fallback
-- **Smart Cart** — Quantity management, automatic bulk discounts (5% per 10 items, up to 50%)
-- **Coupon System** — Validated discount codes with Supabase persistence
-- **Favorites** — Per-user product bookmarking with localStorage sync
-- **Advanced Filters** — Category, full-text search, price range slider, allergen exclusions
-- **Product Reviews** — Star ratings + comments stored in Supabase with public read / authenticated write RLS
+The architecture is built around three pillars:
 
-### UI & UX
-- **Dark Mode by default** — Refined dark theme with manual light mode toggle
-- **Skeleton Loading** — Smooth loading states instead of blank screens while fetching
-- **Mobile-First Design** — Fully responsive, Bootstrap 5 grid system
-- **PWA** — Installable on desktop and mobile, with push notification opt-in at checkout
-- **Sushi Points** — Loyalty gamification (Bronze / Silver / Gold levels)
-- **Toast Notifications** — Non-intrusive feedback for every user action
-
-### Developer Experience
-- **Clean Architecture** — Context API (`AuthContext`, `CartContext`, `ThemeContext`) + custom hooks
-- **Supabase-ready** — Migration SQL included, RLS policies written and tested
-- **Vercel Deploy** — Zero-config CI/CD via GitHub integration
+- **React 18 SPA** with Context API for decoupled, scalable state management
+- **Supabase** as a serverless backend (Auth, PostgreSQL with RLS, Storage CDN)
+- **Progressive Web App** — installable on any device, with push notifications
 
 ---
 
-## Tech Stack
+## ✨ Key Features
 
-| Layer | Technology |
-|-------|-----------|
-| **Frontend** | React 18, React Router DOM v7 |
-| **State** | Context API — `AuthContext`, `CartContext`, `ThemeContext` |
-| **Backend / DB** | Supabase (PostgreSQL + Auth + Storage) |
-| **Styling** | Bootstrap 5, Bootstrap Icons, CSS3 |
-| **PWA** | Service Worker, Web App Manifest |
-| **Deploy** | Vercel (auto-deploy from GitHub `main`) |
+### 🔐 Authentication & Security
+
+- **Supabase Auth** — Email/password signup and login with automatic JWT session persistence
+- **Database triggers** — A PostgreSQL trigger on `auth.users` auto-provisions a `profiles` row on every new signup, setting a default `user` role
+- **Row-Level Security (RLS)** — Every table enforces access policies at the database level (see [Architecture & Security](#architecture--security))
+- **Protected Routes** — The checkout flow is gated behind a `<ProtectedRoute>` HOC; unauthenticated users are redirected to `/login`
+
+### 🛒 Shopping Experience
+
+- **Live Product Catalog** — Menu fetched from Supabase with a graceful local-fallback for offline or error states
+- **À-la-carte Menu** — Full-text search, category tabs (Roll / Nigiri / Special), price-range slider, and per-allergen exclusion filters
+- **Smart Cart** — Quantity management with automatic tiered discounts (5% per 10 items, capped at 50%) and coupon-code support
+- **Product Ratings** — Star ratings and comments stored in Supabase; public read, authenticated write, one review per user per product
+- **Favorites** — Per-session product bookmarking with localStorage sync
+- **Sushi Points** — Loyalty gamification system: Bronze → Silver → Gold levels based on order history
+
+### 🎊 Party Box Configurator *(v0.6.0)*
+
+A multi-step, guided UX for building a fully custom sushi assortment:
+
+1. **Step 1 — Choose a size**: Three Bootstrap pricing cards with feature lists and a "Most popular" badge
+   | Size | Pieces | Price |
+   |------|--------|-------|
+   | 📦 Piccola | 20 pz | €25 |
+   | 🎁 Media | 50 pz | €55 |
+   | 🎊 Grande | 80 pz | €85 |
+2. **Step 2 — Compose portions**: A responsive card grid where the user increments/decrements portion counts. A live progress bar (info → warning → danger → success) reflects the fill level; the CTA unlocks only when the box is exactly full.
+
+### 🖼️ UI & UX
+
+- **Dark Mode** — Deep, immersive dark theme with Bootstrap 5 utility classes; manual light-mode toggle available
+- **Responsive Grid** — Mobile-first Bootstrap 5 layout with product cards featuring high-quality imagery, category badges, ingredient descriptions, and intuitive `+`/`−` quantity controls
+- **Skeleton Loading** — Smooth placeholder states replace blank screens during Supabase fetches
+- **Toast Notifications** — Non-blocking feedback for every user action
+- **PWA** — Full service worker, Web App Manifest, installable on desktop and mobile, push notification opt-in at checkout
 
 ---
 
-## Getting Started
+## 🏗️ Architecture & Security
+
+```
+Browser (React SPA + PWA)
+       │
+       ├── Context API ──── AuthContext   (Supabase session, signIn/signUp/signOut)
+       │                ├── CartContext   (quantities, discounts, coupon, Sushi Points)
+       │                └── ThemeContext  (dark / light toggle)
+       │
+       └── Supabase ──────── Auth         (JWT, session refresh)
+                        ├── PostgreSQL    (5 tables, RLS on every row)
+                        └── Storage       (public image CDN bucket)
+```
+
+### Row-Level Security Policy Summary
+
+All five tables have RLS **enabled and enforced**. No query reaches a row unless a matching policy grants it:
+
+| Table | Public Read | Authenticated Write | Admin Full Access |
+|-------|:-----------:|:-------------------:|:-----------------:|
+| `products` | Active rows only | ✗ | ✅ |
+| `profiles` | ✗ | Own row only | ✅ |
+| `orders` | ✗ | Own rows | ✅ |
+| `order_items` | ✗ | Own rows | ✅ |
+| `ratings` | ✅ | One per product | ✅ |
+
+Admin identity is determined by the `role` column in `profiles`, set at registration or via a Supabase dashboard update. All policy checks reference `auth.uid()` — credentials never flow through the frontend.
+
+---
+
+## 🗂️ Project Structure
+
+```
+src/
+├── components/
+│   ├── Navbar.js              # Dynamic auth UI — user info + logout, or login CTA
+│   ├── PartyBoxConfigurator.js# Multi-step Party Box builder (pricing cards → composer)
+│   ├── ProtectedRoute.js      # Auth guard HOC
+│   ├── Card.js                # Product card — image, badge, allergens, qty controls
+│   └── ...                    # Breadcrumb, Footer, Layout, ProductModal, Toast
+├── context/
+│   ├── AuthContext.js         # Supabase session management
+│   ├── CartContext.js         # Cart state, discounts, coupon, Sushi Points
+│   └── ThemeContext.js        # Dark / light mode
+├── hooks/
+│   ├── useProducts.js         # Supabase product fetch + local fallback
+│   ├── useRatings.js          # Per-product and aggregate ratings
+│   ├── useCoupon.js           # Coupon validation with Supabase persistence
+│   └── useSushiPoints.js      # Loyalty level system
+├── lib/
+│   └── supabase.js            # Supabase client (env-var initialised)
+├── pages/
+│   ├── HomePage.js            # Hero CTA + à-la-carte menu with filters
+│   ├── BoxBuilderPage.js      # /box-builder route wrapper
+│   ├── CartPage.js            # Cart review, coupon input, delivery estimate
+│   ├── CheckoutPage.js        # Delivery form, order persistence, points earn
+│   ├── LoginPage.js / RegisterPage.js
+│   └── NotFoundPage.js
+├── App.js                     # Root — providers, router, document title hook
+└── App.css                    # Global styles, dark theme, skeleton animations
+```
+
+---
+
+## 🚀 Local Setup
 
 ### Prerequisites
-- Node.js >= 20
-- npm >= 9
+
+- Node.js ≥ 20
+- npm ≥ 9
 - A free [Supabase](https://supabase.com) project
 
 ### Installation
@@ -80,94 +147,55 @@ cd Sushi_Project_Carmelo_LM-main
 # 2. Install dependencies
 npm install
 
-# 3. Configure environment variables
-cp .env.example .env.local
-# → fill in REACT_APP_SUPABASE_URL and REACT_APP_SUPABASE_ANON_KEY
+# 3. Configure environment variables (see below)
+cp .env.example .env.local   # or create .env.local manually
 
-# 4. Run the database migration
-# → paste supabase_migration_01.sql into Supabase SQL Editor and run it
+# 4. Apply the database schema
+# Open Supabase → SQL Editor → paste & run supabase_migration_01.sql
 
 # 5. Start the development server
 npm start
+# → http://localhost:3000
 ```
-
-App available at `http://localhost:3000`.
 
 ### Environment Variables
 
-| Variable | Description |
-|----------|-------------|
-| `REACT_APP_SUPABASE_URL` | Your Supabase project URL |
-| `REACT_APP_SUPABASE_ANON_KEY` | Your Supabase anon/public API key |
+Create a `.env.local` file at the project root:
 
----
-
-## Database Schema
-
-All tables have **Row-Level Security enabled**. One migration file covers everything: `supabase_migration_01.sql`.
-
-| Table | Description | RLS |
-|-------|-------------|-----|
-| `profiles` | Extends `auth.users` with `role` (user/admin). Auto-created on signup via trigger. | Owner read/write, admin full access |
-| `products` | Menu catalog — name, price, image, category, active flag | Public read (active only), admin write |
-| `orders` | Order headers — user, total, status | Owner read/insert, admin full access |
-| `order_items` | Order line items — product, quantity, price snapshot | Owner read/insert, admin full access |
-| `ratings` | Product reviews — stars (1–5), comment | Public read, authenticated insert (one per product) |
-
----
-
-## Project Structure
-
-```
-src/
-├── components/
-│   ├── Navbar.js          # Dynamic auth UI — username/logout or login CTA
-│   ├── ProtectedRoute.js  # Auth guard HOC
-│   └── ...                # Card, Footer, Layout, ProductModal, Toast
-├── context/
-│   ├── AuthContext.js     # Supabase session — signIn, signUp, signOut
-│   ├── CartContext.js     # Cart state, discounts, coupon, sushi points
-│   └── ThemeContext.js    # Dark / light mode toggle
-├── hooks/
-│   ├── useProducts.js     # Fetch products from Supabase with local fallback
-│   ├── useRatings.js      # Per-product and global ratings from Supabase
-│   ├── useCoupon.js       # Coupon validation + Supabase persistence
-│   └── useSushiPoints.js  # Loyalty points and level system
-├── lib/
-│   └── supabase.js        # Supabase client (initialized from env vars)
-├── pages/
-│   ├── HomePage.js        # Menu, filters, skeleton loading
-│   ├── CartPage.js        # Cart review, coupon, delivery estimate
-│   ├── CheckoutPage.js    # Delivery form, order confirmation, points earn
-│   ├── LoginPage.js       # Auth — sign in
-│   ├── RegisterPage.js    # Auth — sign up
-│   └── NotFoundPage.js    # 404
-├── App.js                 # Root — providers, routing
-└── App.css                # Global styles, dark mode, animations
+```env
+# .env.local — never commit this file
+REACT_APP_SUPABASE_URL=https://<your-project-ref>.supabase.co
+REACT_APP_SUPABASE_ANON_KEY=<your-anon-public-key>
 ```
 
----
+Both values are available in your Supabase dashboard under **Project Settings → API**.
 
-## Roadmap
-
-| Phase | Status | Scope |
-|-------|--------|-------|
-| Sprint 1–4 | ✅ Done | Foundation, UI components, PWA, UX polish |
-| Phase 1 — Schema & Auth | ✅ Done | Supabase DB schema, RLS policies, Auth setup |
-| Phase 2 — Auth UI | ✅ Done | Login, Register, ProtectedRoute, Navbar auth |
-| **Phase 3 — DB Products** | 🔄 In progress | Products fetched from Supabase, cart refactor |
-| Phase 4 — Orders & Admin | ⏳ Planned | Order persistence, order history, admin dashboard |
-
-> See [TODO.md](./TODO.md) for the full task breakdown.
+> ⚠️ The anon key is safe to expose in the browser **only because RLS policies restrict what it can access**. Never use the `service_role` key on the frontend.
 
 ---
 
-## Author
+## 🗺️ Roadmap
+
+| Sprint | Status | Deliverables |
+|--------|--------|--------------|
+| **1** | ✅ Complete | Project scaffold, React Router, Bootstrap dark theme, PWA manifest |
+| **2** | ✅ Complete | Cart Context, coupon system, Sushi Points, Toast notifications |
+| **3** | ✅ Complete | Supabase Auth + RLS, product catalog, ratings, checkout flow |
+| **4** | ✅ Complete | Party Box Configurator (3 sizes, 2-step UX), Hero section, `/box-builder` route |
+| **5** | ⏳ Planned | Realtime order tracking (Supabase WebSocket), PWA offline cache (IndexedDB), Code Splitting (`React.lazy` + `Suspense`), Image optimisation via Supabase Storage WebP transforms |
+
+> Full task breakdown: [TODO.md](./TODO.md)
+
+---
+
+## 🧑‍💻 Author
 
 **Carmelo La Mantia**
-- GitHub: [@MeloLM](https://github.com/MeloLM)
-- Email: carmelo.la.mantia00@gmail.com
+
+[![GitHub](https://img.shields.io/badge/@MeloLM-181717?style=flat-square&logo=github)](https://github.com/MeloLM)
+[![Email](https://img.shields.io/badge/carmelo.la.mantia00@gmail.com-EA4335?style=flat-square&logo=gmail&logoColor=white)](mailto:carmelo.la.mantia00@gmail.com)
 
 ---
 
-*Built with precision and a passion for clean architecture.*
+*Built with precision, dark mode, and a healthy obsession with clean architecture.*
+
