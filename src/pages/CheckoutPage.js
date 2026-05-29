@@ -8,7 +8,9 @@ const CheckoutPage = () => {
   const {
     cartItems, totalQuantity, finalPrice, discountPercent,
     coupon, couponDiscountAmount, discountAmount,
-    resetCart, showToast, addPoints, totalOrders
+    resetCart, showToast, addPoints, totalOrders,
+    // customBoxItems è disponibile nel context — usalo in handleSupabaseInsert
+    // quando integrerai il salvataggio su Supabase.
   } = useCartContext();
 
   const { permission, requestPermission, sendOrderNotification } = usePWANotifications();
@@ -42,6 +44,59 @@ const CheckoutPage = () => {
     setFormData(prev => ({ ...prev, [name]: value }));
     if (errors[name]) setErrors(prev => ({ ...prev, [name]: '' }));
   };
+
+  // ─── PREDISPOSIZIONE SUPABASE ─────────────────────────────────────────────────────────────────
+  // Questa funzione mostra COME inserire le righe d'ordine su Supabase.
+  // Da integrare all'interno di handleSubmit dopo la conferma del pagamento.
+  //
+  // Schema tabella `order_items` (PostgreSQL / Supabase):
+  //   id           UUID PRIMARY KEY DEFAULT gen_random_uuid()
+  //   order_id     UUID REFERENCES orders(id)
+  //   product_id   TEXT              -- null per Custom Box
+  //   name         TEXT NOT NULL
+  //   price        NUMERIC(8,2)
+  //   quantity     INT
+  //   is_custom_box BOOLEAN DEFAULT false
+  //   customizations JSONB           -- null per prodotti classici
+  //
+  // const handleSupabaseInsert = async (orderId) => {
+  //   const { supabase } = await import('../lib/supabase');
+  //
+  //   // 1. Prodotti à-la-carte — struttura classica, customizations = null
+  //   const regularRows = cartItems.map(item => ({
+  //     order_id:       orderId,
+  //     product_id:     item.id,
+  //     name:           item.name,
+  //     price:          item.prezzo,
+  //     quantity:       item.quantita,
+  //     is_custom_box:  false,
+  //     customizations: null,
+  //   }));
+  //
+  //   // 2. Custom Box — l'array `customizations` viene passato direttamente
+  //   //    a PostgreSQL come JSONB: Supabase serializza l'oggetto JS automaticamente.
+  //   //    Struttura JSONB salvata:
+  //   //    [
+  //   //      { productId, productName, type, portionCount, piecesPerPortion, totalPieces },
+  //   //      ...
+  //   //    ]
+  //   const customBoxRows = customBoxItems.map(box => ({
+  //     order_id:       orderId,
+  //     product_id:     null,          // nessun ID fisso nel catalogo
+  //     name:           box.name,
+  //     price:          box.price,
+  //     quantity:       box.quantity,
+  //     is_custom_box:  true,
+  //     customizations: box.customizations,  // <-- colonna JSONB
+  //   }));
+  //
+  //   const { error } = await supabase
+  //     .from('order_items')
+  //     .insert([...regularRows, ...customBoxRows]);
+  //
+  //   if (error) throw new Error(error.message);
+  // };
+  // ───────────────────────────────────────────────────────────────────────────────
 
   const handleSubmit = async (e) => {
     e.preventDefault();

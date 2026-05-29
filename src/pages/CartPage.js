@@ -7,14 +7,25 @@ import { useCoupon } from '../hooks/useCoupon';
 const CartPage = () => {
   const navigate = useNavigate();
   const {
-    cartItems, totalQuantity, totalPrice,
+    cartItems, customBoxItems, totalQuantity, totalPrice,
     discountPercent, discountAmount,
     coupon, applyCoupon, removeCoupon, couponDiscountAmount,
-    finalPrice, resetCart, incrementItem, decrementItem
+    finalPrice, resetCart, incrementItem, decrementItem,
+    removeCustomBox,
   } = useCartContext();
 
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [couponInput, setCouponInput] = useState('');
+
+  // Traccia quali Custom Box accordion sono aperte.
+  // Set<string> di UUID: aggiunta = aperta, assenza = chiusa.
+  const [openBoxIds, setOpenBoxIds] = useState(new Set());
+  const toggleBox = (id) =>
+    setOpenBoxIds(prev => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
   const { loading: couponLoading, error: couponError, validateCoupon } = useCoupon();
 
   const handleCheckout = () => { if (totalQuantity > 0) navigate('/checkout'); };
@@ -84,6 +95,73 @@ const CartPage = () => {
                             <span className="fw-bold text-success">{(item.prezzo * item.quantita).toFixed(2)}€</span>
                           </div>
                         </div>
+                      </li>
+                    ))}
+
+                    {/* ── Custom Box items ──
+                        Ogni box è distinta per UUID: il layout usa un Collapse
+                        React-controlled (nessuna dipendenza da Bootstrap JS)
+                        per mostrare/nascondere la composizione dettagliata.
+                    */}
+                    {customBoxItems.map(box => (
+                      <li
+                        key={box.id}
+                        className="list-group-item cart-page-item cart-item-animate bg-dark text-white p-0"
+                        style={{ borderColor: 'rgba(255,193,7,0.4)' }}
+                      >
+                        {/* Header accordion */}
+                        <div className="d-flex align-items-center justify-content-between p-3">
+                          <div className="d-flex align-items-center gap-3">
+                            <span className="fs-3" aria-hidden="true">📦</span>
+                            <div>
+                              <h6 className="mb-0 text-white fw-semibold">{box.name}</h6>
+                              <span className="badge bg-warning text-dark" style={{ fontSize: '0.7rem' }}>
+                                Custom Box · prezzo fisso
+                              </span>
+                            </div>
+                          </div>
+                          <div className="d-flex align-items-center gap-2">
+                            <span className="fw-bold text-success">{box.price.toFixed(2)}€</span>
+                            {/* Toggle accordion */}
+                            <button
+                              className="btn btn-link text-warning p-1"
+                              onClick={() => toggleBox(box.id)}
+                              aria-expanded={openBoxIds.has(box.id)}
+                              aria-label="Mostra composizione box"
+                            >
+                              <i className={`bi bi-chevron-${openBoxIds.has(box.id) ? 'up' : 'down'}`} />
+                            </button>
+                            {/* Rimuovi */}
+                            <button
+                              className="btn btn-outline-danger btn-sm"
+                              onClick={() => removeCustomBox(box.id)}
+                              aria-label={`Rimuovi ${box.name} dal carrello`}
+                            >
+                              <i className="bi bi-trash" />
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Body accordion (Collapse React-controlled) */}
+                        {openBoxIds.has(box.id) && (
+                          <div className="px-3 pb-3 border-top" style={{ borderColor: 'rgba(255,193,7,0.25)' }}>
+                            <p className="small text-muted mt-2 mb-1">
+                              <i className="bi bi-list-ul me-1" aria-hidden="true"></i>
+                              Composizione:
+                            </p>
+                            <ul className="list-unstyled mb-0">
+                              {box.customizations.map(c => (
+                                <li
+                                  key={c.productId}
+                                  className="d-flex justify-content-between small text-white-50 mb-1"
+                                >
+                                  <span>{c.portionCount}× {c.productName}</span>
+                                  <span className="text-muted">{c.totalPieces} pz</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
                       </li>
                     ))}
                   </ul>

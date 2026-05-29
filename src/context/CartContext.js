@@ -36,6 +36,11 @@ export const CartProvider = ({ children }) => {
 
   const [coupon, setCoupon] = useState(null);
 
+  // customBoxItems: array di oggetti Custom Box aggiunti al carrello.
+  // Ogni item ha un UUID univoco generato al momento dell'aggiunta, quindi
+  // due box identiche non si sovrascrivono mai nello stato.
+  const [customBoxItems, setCustomBoxItems] = useState([]);
+
   const { points: sushiPoints, totalOrders, addPoints, level: sushiLevel } = useSushiPoints();
 
   React.useEffect(() => {
@@ -54,6 +59,20 @@ export const CartProvider = ({ children }) => {
     setToast({ show: true, message, type });
     setTimeout(() => setToast({ show: false, message: '', type: 'success' }), 2500);
   }, []);
+
+  // addCustomBox: riceve il payload costruito in CustomBoxConfigurator e lo
+  // appende all'array. Nessuna fusione per ID — ogni box è un item distinto.
+  const addCustomBox = useCallback((payload) => {
+    setCustomBoxItems(prev => [...prev, payload]);
+  }, []);
+
+  // removeCustomBox: rimuove una singola Custom Box per ID univoco.
+  // L'UUID garantisce che la rimozione colpisca esattamente l'item desiderato
+  // anche in presenza di box con la stessa taglia.
+  const removeCustomBox = useCallback((id) => {
+    setCustomBoxItems(prev => prev.filter(box => box.id !== id));
+    showToast('Custom Box rimossa dal carrello', 'info');
+  }, [showToast]);
 
   const incrementItem = useCallback((card) => {
     setQuantities(prev => {
@@ -75,6 +94,7 @@ export const CartProvider = ({ children }) => {
 
   const resetCart = useCallback(() => {
     setQuantities({});
+    setCustomBoxItems([]);   // svuota anche le Custom Box
     setCoupon(null);
     showToast('Carrello svuotato', 'info');
   }, [showToast]);
@@ -104,6 +124,13 @@ export const CartProvider = ({ children }) => {
     acc.totalPrice    += item.prezzo * item.quantita;
     return acc;
   }, { totalQuantity: 0, totalPrice: 0 });
+
+  // Somma le Custom Box ai totali: ogni box conta come 1 unità nel badge carrello.
+  customBoxItems.forEach(box => {
+    totals.totalQuantity += box.quantity;
+    totals.totalPrice    += box.price * box.quantity;
+  });
+
   totals.totalPrice = Math.round(totals.totalPrice * 100) / 100;
 
   const discountPercent  = Math.min(Math.floor(totals.totalQuantity / 10) * 5, 50);
@@ -128,6 +155,7 @@ export const CartProvider = ({ children }) => {
     maxQuantity: MAX_QUANTITY,
     toast, showToast,
     sushiPoints, totalOrders, addPoints, sushiLevel,
+    customBoxItems, addCustomBox, removeCustomBox,
   };
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;

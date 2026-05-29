@@ -68,13 +68,13 @@ const HomePage = () => {
     <div className="container min-vh-100 py-4">
       <Breadcrumb />
 
-      {/* ── Hero: Party Box Builder CTA ─────────────────────────────────────── */}
+      {/* ── Hero: Custom Box Builder CTA ─────────────────────────────────────── */}
       <div className="p-4 p-md-5 mb-5 rounded-3 bg-dark border border-warning border-opacity-50">
         <div className="row align-items-center g-4">
           <div className="col-md-8">
             <h2 className="fw-bold text-white mb-2">
               Costruisci la tua{' '}
-              <span className="text-warning">Party Box</span> 🎊
+              <span className="text-warning">Custom Box</span> 🎊
             </h2>
             <p className="text-muted mb-3">
               Personalizza il tuo assortimento di sushi per feste e occasioni speciali.
@@ -84,10 +84,10 @@ const HomePage = () => {
               <Link
                 to="/box-builder"
                 className="btn btn-warning btn-lg fw-semibold"
-                aria-label="Crea il tuo Party Box personalizzato"
+                aria-label="Crea il tuo Custom Box personalizzato"
               >
                 <i className="bi bi-box-seam-fill me-2" aria-hidden="true"></i>
-                Crea il tuo Party Box
+                Crea il tuo Custom Box
               </Link>
               <span className="d-flex align-items-center gap-3">
                 <span className="text-muted small">📦 20 pz · €25</span>
@@ -97,7 +97,11 @@ const HomePage = () => {
             </div>
           </div>
           <div className="col-md-4 text-center d-none d-md-block">
-            <span style={{ fontSize: '5rem' }} aria-hidden="true">🍱</span>
+            <img
+              src={require('../images/boxSushiMain.png')}
+              alt="Custom Box di sushi"
+              style={{ maxWidth: '100%', maxHeight: '220px', objectFit: 'contain', borderRadius: '12px' }}
+            />
           </div>
         </div>
       </div>

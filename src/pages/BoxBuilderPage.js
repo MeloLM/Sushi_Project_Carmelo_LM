@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { Breadcrumb } from '../components';
-import { PartyBoxConfigurator } from '../components';
+import { CustomBoxConfigurator } from '../components';
 
 const BoxBuilderPage = () => {
   useEffect(() => {
@@ -18,7 +18,7 @@ const BoxBuilderPage = () => {
 
       <div className="mb-4">
         <h1 className="fw-bold text-white">
-          <span className="text-warning">Party Box</span> Personalizzabile 🎊
+          <span className="text-warning">Custom Box</span> Personalizzabile 🎊
         </h1>
         <p className="text-muted">
           Scegli la taglia del box, poi componi il tuo assortimento di sushi scegliendo
@@ -26,7 +26,7 @@ const BoxBuilderPage = () => {
         </p>
       </div>
 
-      <PartyBoxConfigurator />
+      <CustomBoxConfigurator />
     </div>
   );
 };
